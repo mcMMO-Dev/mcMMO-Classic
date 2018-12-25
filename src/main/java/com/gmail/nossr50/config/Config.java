@@ -249,8 +249,6 @@ public class Config extends AutoUpdateConfigLoader {
     public boolean getShowProfileLoadedMessage() { return config.getBoolean("General.Show_Profile_Loaded", true); }
     public boolean getDonateMessageEnabled() { return config.getBoolean("Commands.mcmmo.Donate_Message", true); }
     public int getSaveInterval() { return config.getInt("General.Save_Interval", 10); }
-    public boolean getStatsTrackingEnabled() { return config.getBoolean("General.Stats_Tracking", true); }
-    public boolean getUpdateCheckEnabled() { return config.getBoolean("General.Update_Check", true); }
     public boolean getPreferBeta() { return config.getBoolean("General.Prefer_Beta", false); }
     public boolean getVerboseLoggingEnabled() { return config.getBoolean("General.Verbose_Logging", false); }
 
