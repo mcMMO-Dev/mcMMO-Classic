@@ -2,11 +2,11 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.gmail.nossr50.mcMMO</groupId>
     <artifactId>mcMMO</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.1-SNAPSHOT</version>
     <name>mcMMO</name>
-    <url>https://github.com/mcMMO-Dev/mcMMO</url>
+    <url>https://github.com/t00thpick1/mcMMO</url>
     <issueManagement>
-        <url>https://github.com/mcMMO-Dev/mcMMO/issues</url>
+        <url>https://github.com/t00thpick1/mcMMO/issues</url>
         <system>GitHub</system>
     </issueManagement>
     <build>
@@ -147,17 +147,11 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
-    <distributionManagement>
-        <repository>
-            <id>drtshock-releases</id>
-            <url>https://ci.drtshock.net/plugin/repository/everything/com/gmail/nossr50/mcMMO/</url>
-        </repository>
-    </distributionManagement>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <ciManagement>
         <system>Jenkins</system>
-        <url>https://ci.drtshock.net/job/mcmmo/</url>
+        <url>https://ci.ecocitycraft.net/job/McMMO/</url>
     </ciManagement>
 </project>
