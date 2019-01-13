@@ -155,6 +155,7 @@ MySQL:
     Server:
         Port: 3306
         Address: localhost
+        SSL: true
 
 #
 #  Settings for Hardcore mode
