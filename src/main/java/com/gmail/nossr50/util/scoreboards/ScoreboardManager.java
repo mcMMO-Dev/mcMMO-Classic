@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gmail.nossr50.datatypes.skills.AbilityType;
+import com.gmail.nossr50.datatypes.skills.SkillType;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
@@ -16,8 +18,6 @@ import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.datatypes.database.PlayerStat;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.player.PlayerProfile;
-import com.gmail.nossr50.datatypes.skills.AbilityType;
-import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.util.Misc;
 import com.gmail.nossr50.util.player.UserManager;
@@ -26,6 +26,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 
+/**
+ * Manages the Scoreboards used to display a variety of mcMMO related information to the player
+ */
 public class ScoreboardManager {
     static final Map<String, ScoreboardWrapper> PLAYER_SCOREBOARDS = new HashMap<String, ScoreboardWrapper>();
 
@@ -51,11 +54,22 @@ public class ScoreboardManager {
     static final Map<AbilityType, String> abilityLabelsColored;
     static final Map<AbilityType, String> abilityLabelsSkill;
 
+    /*
+     * Initializes the static properties of this class
+     */
     static {
+        /*
+         * We need immutable objects for our Scoreboard's labels
+         */
         ImmutableMap.Builder<SkillType, String> skillLabelBuilder = ImmutableMap.builder();
         ImmutableMap.Builder<AbilityType, String> abilityLabelBuilder = ImmutableMap.builder();
         ImmutableMap.Builder<AbilityType, String> abilityLabelSkillBuilder = ImmutableMap.builder();
 
+        /*
+         * Builds the labels for our ScoreBoards
+         * Stylizes the targetBoard in a Rainbow Pattern
+         * This is off by default
+         */
         if (Config.getInstance().getScoreboardRainbows()) {
             // Everything but black, gray, gold
             List<ChatColor> colors = Lists.newArrayList(
@@ -93,6 +107,10 @@ public class ScoreboardManager {
                 }
             }
         }
+        /*
+         * Builds the labels for our ScoreBoards
+         * Stylizes the targetBoard using our normal color scheme
+         */
         else {
             for (SkillType type : SkillType.values()) {
                 // Include child skills
@@ -361,12 +379,12 @@ public class ScoreboardManager {
     }
 
     /**
-     * Gets or creates the power level objective on the main scoreboard.
+     * Gets or creates the power level objective on the main targetBoard.
      * <p/>
      * If power levels are disabled, the objective is deleted and null is
      * returned.
      *
-     * @return the main scoreboard objective, or null if disabled
+     * @return the main targetBoard objective, or null if disabled
      */
     public static Objective getPowerLevelObjective() {
         if (!Config.getInstance().getPowerLevelTagsEnabled()) {
@@ -374,7 +392,7 @@ public class ScoreboardManager {
 
             if (objective != null) {
                 objective.unregister();
-                mcMMO.p.debug("Removed leftover scoreboard objects from Power Level Tags.");
+                mcMMO.p.debug("Removed leftover targetBoard objects from Power Level Tags.");
             }
 
             return null;
