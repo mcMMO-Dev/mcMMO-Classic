@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.gmail.nossr50.config.VersionedConfigLoader;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +17,7 @@ import com.gmail.nossr50.skills.repair.repairables.RepairableFactory;
 import com.gmail.nossr50.util.ItemUtils;
 import com.gmail.nossr50.util.skills.SkillUtils;
 
-public class RepairConfig extends ConfigLoader {
+public class RepairConfig extends VersionedConfigLoader {
     private List<Repairable> repairables;
 
     public RepairConfig(String fileName) {

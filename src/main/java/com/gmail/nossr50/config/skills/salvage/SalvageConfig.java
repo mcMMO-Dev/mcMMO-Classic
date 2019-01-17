@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.gmail.nossr50.config.VersionedConfigLoader;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +17,7 @@ import com.gmail.nossr50.skills.salvage.salvageables.SalvageableFactory;
 import com.gmail.nossr50.util.ItemUtils;
 import com.gmail.nossr50.util.skills.SkillUtils;
 
-public class SalvageConfig extends ConfigLoader {
+public class SalvageConfig extends VersionedConfigLoader {
     private List<Salvageable> salvageables;
 
     public SalvageConfig(String fileName) {

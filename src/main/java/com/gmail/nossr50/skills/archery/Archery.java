@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.gmail.nossr50.config.experience.XPConfig;
 import org.bukkit.Material;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
@@ -22,7 +23,7 @@ public class Archery {
 
     public static double dazeBonusDamage = AdvancedConfig.getInstance().getDazeBonusDamage();
 
-    public static final double DISTANCE_XP_MULTIPLIER = ExperienceConfig.getInstance().getArcheryDistanceMultiplier();
+    public static final double DISTANCE_XP_MULTIPLIER = XPConfig.getInstance().getArcheryDistanceMultiplier();
 
     protected static void incrementTrackerValue(LivingEntity livingEntity) {
         for (TrackedEntity trackedEntity : trackedEntities) {

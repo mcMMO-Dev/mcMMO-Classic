@@ -2,6 +2,7 @@ package com.gmail.nossr50.skills.herbalism;
 
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.config.experience.XPConfig;
 import com.gmail.nossr50.config.treasure.TreasureConfig;
 import com.gmail.nossr50.datatypes.mods.CustomBlock;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
@@ -134,7 +135,7 @@ public class HerbalismManager extends SkillManager {
             }
         }
         else {
-            xp = ExperienceConfig.getInstance().getXp(skill, blockState.getBlockData());
+            xp = XPConfig.getInstance().getXp(skill, blockState.getBlockData());
 
             if (Config.getInstance().getDoubleDropsEnabled(skill, material) && Permissions.secondaryAbilityEnabled(player, SecondaryAbility.HERBALISM_DOUBLE_DROPS)) {
                 drops = blockState.getBlock().getDrops();

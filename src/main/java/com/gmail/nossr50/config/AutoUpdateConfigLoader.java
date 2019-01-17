@@ -46,7 +46,7 @@ public abstract class AutoUpdateConfigLoader extends ConfigLoader {
 
         for (String key : oldKeys) {
             plugin.debug("Detected potentially unused key: " + key);
-            //config.set(key, null);
+            config.set(key, null);
         }
 
         for (String key : newKeys) {

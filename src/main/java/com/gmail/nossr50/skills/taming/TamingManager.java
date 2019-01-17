@@ -3,6 +3,7 @@ package com.gmail.nossr50.skills.taming;
 import com.gmail.nossr50.config.AdvancedConfig;
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.config.experience.XPConfig;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
 import com.gmail.nossr50.datatypes.skills.SkillType;
@@ -73,7 +74,7 @@ public class TamingManager extends SkillManager {
      * @param entity The LivingEntity to award XP for
      */
     public void awardTamingXP(LivingEntity entity) {
-        applyXpGain(ExperienceConfig.getInstance().getTamingXP(entity.getType()), XPGainReason.PVE);
+        applyXpGain(XPConfig.getInstance().getTamingXP(entity.getType()), XPGainReason.PVE);
     }
 
     /**

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gmail.nossr50.config.VersionedConfigLoader;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -20,7 +21,7 @@ import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.config.ConfigLoader;
 import com.gmail.nossr50.datatypes.skills.alchemy.AlchemyPotion;
 
-public class PotionConfig extends ConfigLoader {
+public class PotionConfig extends VersionedConfigLoader {
     private static PotionConfig instance;
 
     private List<ItemStack> concoctionsIngredientsTierOne = new ArrayList<ItemStack>();

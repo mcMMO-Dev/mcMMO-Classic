@@ -1,7 +1,9 @@
 #
-#  Settings for Fishing
-#  Last updated on ${project.version}-b${BUILD_NUMBER}
+#  Versioning.  This field will be used for auto-updating configs.
+#  If you plan on doing ANY configuration in this file, you should set this number to -1
+#  to prevent mcMMO from overwriting your changes.  Note that you will need to manually update for new items/blocks/entities
 ###
+Version: 1
 Fishing:
     LEATHER_BOOTS:
         Amount: 1
@@ -878,21 +880,21 @@ Shake:
             Drop_Chance: 100.0
             Drop_Level: 0
     WITCH:
-        SPLASH_POTION|0|INSTANT_HEAL:
+        SPLASH_POTION|INSTANT_HEAL:
             PotionData:
                 PotionType: INSTANT_HEAL
             Amount: 1
             XP: 0
             Drop_Chance: 1.0
             Drop_Level: 0
-        SPLASH_POTION|0|FIRE_RESISTANCE:
+        SPLASH_POTION|FIRE_RESISTANCE:
             PotionData:
                 PotionType: FIRE_RESISTANCE
             Amount: 1
             XP: 0
             Drop_Chance: 1.0
             Drop_Level: 0
-        SPLASH_POTION|0|SPEED:
+        SPLASH_POTION|SPEED:
             PotionData:
                 PotionType: SPEED
             Amount: 1
@@ -936,7 +938,6 @@ Shake:
             Drop_Level: 0
     WITHER_SKELETON:
         WITHER_SKELETON_SKULL:
-            Data: 0
             Amount: 1
             XP: 0
             Drop_Chance: 2.0
@@ -953,7 +954,6 @@ Shake:
             Drop_Level: 0
     ZOMBIE:
         SKELETON_SKULL:
-            Data: 2
             Amount: 1
             XP: 0
             Drop_Chance: 2.0

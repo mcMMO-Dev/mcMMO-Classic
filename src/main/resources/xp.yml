@@ -1,0 +1,244 @@
+#
+#  Versioning.  This field will be used for auto-updating configs.
+#  If you plan on doing ANY configuration in this file, you should set this number to -1
+#  to prevent mcMMO from overwriting your changes.  Note that you will need to manually update for new items/blocks/entities
+###
+Version: 1
+#
+#  Settings for XP distribution
+###
+Experience:
+  Acrobatics:
+    Dodge: 120
+    Roll: 80
+    Fall: 120
+
+    # FeatherFall_Multiplier: Multiply Acrobatics XP by this value when wearing boots with the Feather Fall enchant
+    FeatherFall_Multiplier: 2.0
+  Alchemy:
+    # Alchemy potion stages are based on the number of ingredients added
+    # Potion_Stage_1 represents a base potion
+    # Potion_Stage_2 represents a base potion with one ingredient
+    # Potion_Stage_3 represents a base potion with one ingredient and one amplifier
+    # Potion_Stage_4 represents a base potion with one ingredient and two amplifiers
+    # Potion_Stage_5 represents a base potion with one ingredient where the amplifiers are swapped
+    Potion_Stage_1: 15
+    Potion_Stage_2: 30
+    Potion_Stage_3: 60
+    Potion_Stage_4: 120
+    Potion_Stage_5: 0
+  Archery:
+    Distance_Multiplier: 0.025
+  Fishing:
+    Cod: 100
+    Salmon: 600
+    Tropical_Fish: 10000
+    Pufferfish: 2400
+    Shake: 50
+  Excavation:
+    Clay: 40
+    Dirt: 40
+    Coarse_Dirt: 40
+    Podzol: 40
+    Grass_Block: 40
+    Gravel: 40
+    Mycelium: 40
+    Sand: 40
+    Red_Sand: 40
+    Snow: 20
+    Snow_Block: 40
+    Soul_Sand: 40
+  Woodcutting:
+    Oak_Log: 70
+    Spruce_Log: 80
+    Birch_Log: 90
+    Jungle_Log: 100
+    Acacia_Log: 90
+    Dark_Oak_Log: 90
+    Stripped_Oak_Log: 70
+    Stripped_Spruce_Log: 80
+    Stripped_Birch_Log: 90
+    Stripped_Jungle_Log: 100
+    Stripped_Acacia_Log: 90
+    Stripped_Dark_Oak_Log: 90
+    Mycelium: 70
+    Red_Mushroom_Block: 70
+    Brown_Mushroom_Block: 70
+  Herbalism:
+    Tube_Coral_Fan: 80
+    Brain_Coral: 90
+    Bubble_Coral: 75
+    Fire_Coral: 120
+    Horn_Coral: 175
+    Dead_Tube_Coral: 30
+    Dead_Brain_Coral: 30
+    Dead_Bubble_Coral: 30
+    Dead_Fire_Coral: 30
+    Dead_Horn_Coral: 30
+    Allium: 300
+    Azure_Bluet: 150
+    Beetroots_Ripe: 50
+    Blue_Orchid: 150
+    Brown_Mushroom: 150
+    Cactus: 30
+    Carrots_Ripe: 50
+    Chorus_Flower_Ripe: 25
+    Chorus_Plant: 1
+    Cocoa_Ripe: 30
+    Wheat_Ripe: 50
+    Dead_Bush: 30
+    Lilac: 50
+    Melon: 20
+    Nether_Wart_Ripe: 50
+    Orange_Tulip: 150
+    Oxeye_Daisy: 150
+    Peony: 50
+    Pink_Tulip: 150
+    Poppy: 100
+    Potatoes_Ripe: 50
+    Pumpkin: 20
+    Red_Mushroom: 150
+    Red_Tulip: 150
+    Rose_Bush: 50
+    Fern: 10
+    Grass: 10
+    Sugar_Cane: 30
+    Sunflower: 50
+    Tall_Grass: 50
+    Large_Fern: 50
+    Vine: 10
+    Lily_Pad: 100
+    White_Tulip: 150
+    Dandelion: 100
+  Mining:
+    Tube_Coral_Block: 75
+    Brain_Coral_Block: 80
+    Bubble_Coral_Block: 70
+    Fire_Coral_Block: 90
+    Horn_Coral_Block: 125
+    Coal_Ore: 100
+    Diamond_Ore: 750
+    Emerald_Ore: 1000
+    End_Bricks: 200
+    Nether_Brick: 50
+    End_Stone: 150
+    Glowstone: 30
+    Gold_Ore: 350
+    Terracotta: 30
+    Iron_Ore: 250
+    Lapis_Ore: 400
+    Mossy_Cobblestone: 30
+    Netherrack: 30
+    Obsidian: 150
+    Packed_Ice: 50
+    Blue_Ice: 100
+    Nether_Quartz_Ore: 100
+    Redstone_Ore: 150
+    Sandstone: 30
+    Black_Terracotta: 50
+    Blue_Terracotta: 50
+    Brown_Terracotta: 50
+    Cyan_Terracotta: 50
+    Gray_Terracotta: 50
+    Green_Terracotta: 50
+    Light_Blue_Terracotta: 50
+    Light_Gray_Terracotta: 50
+    Lime_Terracotta: 50
+    Magenta_Terracotta: 50
+    Orange_Terracotta: 50
+    Pink_Terracotta: 50
+    Purple_Terracotta: 50
+    Red_Terracotta: 50
+    White_Terracotta: 50
+    Yellow_Terracotta: 50
+    Stone: 30
+    Granite: 30
+    Andesite: 30
+    Diorite: 30
+    Red_Sandstone: 100
+    Prismarine: 70
+    Purpur_Block: 200
+    Purpur_Pillar: 250
+    Purpur_Slab: 150
+    Purpur_Stairs: 250
+  Repair:
+    Base: 1000.0
+    Wood: 0.6
+    Stone: 1.3
+    Iron: 2.5
+    Gold: 0.3
+    Diamond: 5.0
+    Leather: 1.6
+    String: 1.8
+    Other: 1.5
+  Smelting:
+    Coal_Ore: 10
+    Diamond_Ore: 75
+    Emerald_Ore: 100
+    Gold_Ore: 35
+    Iron_Ore: 25
+    Lapis_Ore: 40
+    Nether_Quartz_Ore: 25
+    Redstone_Ore: 15
+  Taming:
+    Animal_Taming:
+      Wolf: 250
+      Ocelot: 500
+      Horse: 1000
+      Donkey: 1000
+      Mule: 1000
+      Skeleton_Horse: 1000
+      Zombie_Horse: 1000
+  Combat:
+    Multiplier:
+      Animals: 1.0
+      Creeper: 4.0
+      Skeleton: 3.0
+      Spider: 2.0
+      Giant: 4.0
+      Zombie: 2.0
+      Slime: 2.0
+      Ghast: 3.0
+      Pig_Zombie: 3.0
+      Enderman: 1.0
+      Cave_Spider: 3.0
+      Silverfish: 3.0
+      Blaze: 3.0
+      Magma_Cube: 2.0
+      Ender_Dragon: 0.0
+      Wither: 0.0
+      Witch: 0.0
+      Iron_Golem: 2.0
+      Wither_Skeleton: 4.0
+      Endermite: 2.0
+      Guardian: 3.0
+      Elder_Guardian: 4.0
+      Shulker: 2.0
+      Donkey: 1.0
+      Mule: 1.0
+      Horse: 1.0
+      Zombie_Villager: 2.0
+      Skeleton_Horse: 1.0
+      Zombie_Horse: 1.2
+      Husk: 3.0
+      Evoker: 3.0
+      Polar_Bear: 1.0
+      Llama: 1.0
+      Vindicator: 3.0
+      Stray: 2.0
+      Rabbit: 1.0
+      Chicken: 1.0
+      Bat: 1.0
+      Mushroom_Cow: 1.2
+      Cow: 1.0
+      Turtle: 1.1
+      Sheep: 1.0
+      Pig: 1.0
+      Squid: 1.0
+      Ocelot: 1.0
+      Villager: 1.0
+      Snowman: 0.0
+      Parrot: 1.0
+      Illusioner: 3.0
+      Drowned: 1.0
+      Dolphin: 1.3

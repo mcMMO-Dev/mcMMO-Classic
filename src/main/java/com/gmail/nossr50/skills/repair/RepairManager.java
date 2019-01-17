@@ -2,6 +2,7 @@ package com.gmail.nossr50.skills.repair;
 
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.config.experience.XPConfig;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
 import com.gmail.nossr50.datatypes.skills.SkillType;
@@ -145,7 +146,7 @@ public class RepairManager extends SkillManager {
         inventory.removeItem(toRemove);
 
         // Give out XP like candy
-        applyXpGain((float) ((getPercentageRepaired(startDurability, newDurability, repairable.getMaximumDurability()) * repairable.getXpMultiplier()) * ExperienceConfig.getInstance().getRepairXPBase() * ExperienceConfig.getInstance().getRepairXP(repairable.getRepairMaterialType())), XPGainReason.PVE);
+        applyXpGain((float) ((getPercentageRepaired(startDurability, newDurability, repairable.getMaximumDurability()) * repairable.getXpMultiplier()) * XPConfig.getInstance().getRepairXPBase() * XPConfig.getInstance().getRepairXP(repairable.getRepairMaterialType())), XPGainReason.PVE);
 
         // BWONG BWONG BWONG
         if (Config.getInstance().getRepairAnvilUseSoundsEnabled()) {

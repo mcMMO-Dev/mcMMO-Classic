@@ -1,6 +1,7 @@
 package com.gmail.nossr50.skills.excavation;
 
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.config.experience.XPConfig;
 import com.gmail.nossr50.config.treasure.TreasureConfig;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.datatypes.treasure.ExcavationTreasure;
@@ -26,7 +27,7 @@ public class Excavation {
     }
 
     protected static int getBlockXP(BlockState blockState) {
-        int xp = ExperienceConfig.getInstance().getXp(SkillType.EXCAVATION, blockState.getType());
+        int xp = XPConfig.getInstance().getXp(SkillType.EXCAVATION, blockState.getType());
 
         if (xp == 0 && mcMMO.getModManager().isCustomExcavationBlock(blockState)) {
             xp = mcMMO.getModManager().getBlock(blockState).getXpGain();

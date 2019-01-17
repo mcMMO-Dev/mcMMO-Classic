@@ -4,6 +4,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gmail.nossr50.config.experience.XPConfig;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.AnimalTamer;
@@ -473,26 +474,26 @@ public final class CombatUtils {
             }
             else if (target instanceof Animals) {
                 EntityType type = target.getType();
-                baseXP = ExperienceConfig.getInstance().getAnimalsXP(type);
+                baseXP = XPConfig.getInstance().getAnimalsXP(type);
             }
             else if (target instanceof Monster)
             {
                 EntityType type = target.getType();
-                baseXP = ExperienceConfig.getInstance().getCombatXP(type);
+                baseXP = XPConfig.getInstance().getCombatXP(type);
             }
             else {
                 EntityType type = target.getType();
 
-                if (ExperienceConfig.getInstance().hasCombatXP(type)) {
+                if (XPConfig.getInstance().hasCombatXP(type)) {
                     if (type == EntityType.IRON_GOLEM)
                     {
                         if (!((IronGolem) target).isPlayerCreated()) {
-                            baseXP = ExperienceConfig.getInstance().getCombatXP(type);
+                            baseXP = XPConfig.getInstance().getCombatXP(type);
                         }
                     }
                     else
                     {
-                        baseXP = ExperienceConfig.getInstance().getCombatXP(type);
+                        baseXP = XPConfig.getInstance().getCombatXP(type);
                     }
                 }
                 else

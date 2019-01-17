@@ -1,13 +1,15 @@
 package com.gmail.nossr50.config.treasure;
 
 import com.gmail.nossr50.config.ConfigLoader;
+import com.gmail.nossr50.config.VersionedConfigLoader;
 import com.gmail.nossr50.datatypes.treasure.*;
+import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.EnchantmentUtils;
 import com.gmail.nossr50.util.StringUtils;
+import com.google.common.collect.Lists;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.TreeSpecies;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -16,12 +18,16 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
+import org.bukkit.util.FileUtil;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
-public class TreasureConfig extends ConfigLoader {
+public class TreasureConfig extends VersionedConfigLoader {
 
     private static TreasureConfig instance;
 
@@ -137,14 +143,13 @@ public class TreasureConfig extends ConfigLoader {
                 // Use magic material BEDROCK to know that we're grabbing something from the inventory and not a normal treasure
                 if (!shakeMap.containsKey(EntityType.PLAYER))
                     shakeMap.put(EntityType.PLAYER, new ArrayList<ShakeTreasure>());
-                shakeMap.get(EntityType.PLAYER).add(new ShakeTreasure(new ItemStack(Material.BEDROCK, 1, (byte) 0), 1, getInventoryStealDropChance(), getInventoryStealDropLevel()));
+                shakeMap.get(EntityType.PLAYER).add(new ShakeTreasure(new ItemStack(Material.BEDROCK, 1), 1, getInventoryStealDropChance(), getInventoryStealDropLevel()));
                 continue;
             } else {
                 material = Material.matchMaterial(materialName);
             }
 
             int amount = config.getInt(type + "." + treasureName + ".Amount");
-            short data = (treasureInfo.length == 2) ? Short.parseShort(treasureInfo[1]) : (short) config.getInt(type + "." + treasureName + ".Data");
 
             if (material == null) {
                 reason.add("Invalid material: " + materialName);
@@ -152,10 +157,6 @@ public class TreasureConfig extends ConfigLoader {
 
             if (amount <= 0) {
                 reason.add("Amount of " + treasureName + " must be greater than 0! " + amount);
-            }
-
-            if (material != null && material.isBlock() && (data > 127 || data < -128)) {
-                reason.add("Data of " + treasureName + " is invalid! " + data);
             }
 
             /*
@@ -201,7 +202,7 @@ public class TreasureConfig extends ConfigLoader {
                 if (mat == null) {
                     reason.add("Potion format for Treasures.yml has changed");
                 } else {
-                    item = new ItemStack(mat, amount, data);
+                    item = new ItemStack(mat, amount);
                     PotionMeta itemMeta = (PotionMeta) item.getItemMeta();
 
                     PotionType potionType = null;
@@ -228,7 +229,7 @@ public class TreasureConfig extends ConfigLoader {
                     item.setItemMeta(itemMeta);
                 }
             } else if (material != null) {
-                item = new ItemStack(material, amount, data);
+                item = new ItemStack(material, amount);
 
                 if (config.contains(type + "." + treasureName + ".Custom_Name")) {
                     ItemMeta itemMeta = item.getItemMeta();

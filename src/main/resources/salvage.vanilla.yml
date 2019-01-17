@@ -1,4 +1,10 @@
 #
+#  Versioning.  This field will be used for auto-updating configs.
+#  If you plan on doing ANY configuration in this file, you should set this number to -1
+#  to prevent mcMMO from overwriting your changes.  Note that you will need to manually update for new items/blocks/entities
+###
+Version: 1
+#
 #  Salvage configuration
 #  Last updated on ${project.version}-b${BUILD_NUMBER}
 #

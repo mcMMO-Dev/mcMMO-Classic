@@ -3,6 +3,7 @@ package com.gmail.nossr50.skills.woodcutting;
 import com.gmail.nossr50.config.AdvancedConfig;
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.config.experience.XPConfig;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.BlockUtils;
@@ -42,7 +43,7 @@ public final class Woodcutting {
             return mcMMO.getModManager().getBlock(blockState).getXpGain();
         }
 
-        return ExperienceConfig.getInstance().getXp(SkillType.WOODCUTTING, blockState.getType());
+        return XPConfig.getInstance().getXp(SkillType.WOODCUTTING, blockState.getType());
     }
 
     /**

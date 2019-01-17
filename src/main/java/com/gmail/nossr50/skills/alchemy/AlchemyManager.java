@@ -2,6 +2,7 @@ package com.gmail.nossr50.skills.alchemy;
 
 import java.util.List;
 
+import com.gmail.nossr50.config.experience.XPConfig;
 import org.bukkit.inventory.ItemStack;
 
 import com.gmail.nossr50.config.experience.ExperienceConfig;
@@ -57,6 +58,6 @@ public class AlchemyManager extends SkillManager {
     }
 
     public void handlePotionBrewSuccesses(PotionStage potionStage, int amount) {
-        applyXpGain((float) (ExperienceConfig.getInstance().getPotionXP(potionStage) * amount), XPGainReason.PVE);
+        applyXpGain((float) (XPConfig.getInstance().getPotionXP(potionStage) * amount), XPGainReason.PVE);
     }
 }
