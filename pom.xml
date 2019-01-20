@@ -4,9 +4,9 @@
     <artifactId>mcMMO</artifactId>
     <version>1.6.1-SNAPSHOT</version>
     <name>mcMMO</name>
-    <url>https://github.com/t00thpick1/mcMMO</url>
+    <url>https://github.com/mcMMO-Dev/mcMMO-Classic</url>
     <issueManagement>
-        <url>https://github.com/t00thpick1/mcMMO/issues</url>
+        <url>https://github.com/mcMMO-Dev/mcMMO-Classic/issues</url>
         <system>GitHub</system>
     </issueManagement>
     <build>
@@ -152,6 +152,6 @@
     </properties>
     <ciManagement>
         <system>Jenkins</system>
-        <url>https://ci.ecocitycraft.net/job/McMMO/</url>
+        <url>https://ci.ecocitycraft.com/view/McMMO/job/McMMO-Classic/</url>
     </ciManagement>
 </project>
