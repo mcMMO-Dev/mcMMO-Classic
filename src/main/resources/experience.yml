@@ -152,9 +152,19 @@ Experience:
         Stripped_Jungle_Log: 100
         Stripped_Acacia_Log: 90
         Stripped_Dark_Oak_Log: 90
-        Huge_Mushroom_1: 70
-        Huge_Mushroom_2: 70
+        Red_Mushroom_Block: 70
+        Brown_Mushroom_Block: 70
     Herbalism:
+        Tube_Coral_Fan: 80
+        Brain_Coral: 90
+        Bubble_Coral: 75
+        Fire_Coral: 120
+        Horn_Coral: 175
+        Dead_Tube_Coral: 30
+        Dead_Brain_Coral: 30
+        Dead_Bubble_Coral: 30
+        Dead_Fire_Coral: 30
+        Dead_Horn_Coral: 30
         Allium: 300
         Azure_Bluet: 150
         Beetroots_Ripe: 50
@@ -191,6 +201,11 @@ Experience:
         White_Tulip: 150
         Dandelion: 100
     Mining:
+        Tube_Coral_Block: 75
+        Brain_Coral_Block: 80
+        Bubble_Coral_Block: 70
+        Fire_Coral_Block: 90
+        Horn_Coral_Block: 125
         Coal_Ore: 100
         Diamond_Ore: 750
         Emerald_Ore: 1000
@@ -206,6 +221,7 @@ Experience:
         Netherrack: 30
         Obsidian: 150
         Packed_Ice: 50
+        Blue_Ice: 100
         Nether_Quartz_Ore: 100
         Redstone_Ore: 150
         Sandstone: 30
@@ -293,7 +309,7 @@ Experience:
             Horse: 1.0
             Zombie_Villager: 2.0
             Skeleton_Horse: 1.0
-            Zombie_Horse: 1.0
+            Zombie_Horse: 1.2
             Husk: 3.0
             Evoker: 3.0
             Polar_Bear: 1.0
@@ -303,8 +319,9 @@ Experience:
             Rabbit: 1.0
             Chicken: 1.0
             Bat: 1.0
-            Mushroom_Cow: 1.0
+            Mushroom_Cow: 1.2
             Cow: 1.0
+            Turtle: 1.1
             Sheep: 1.0
             Pig: 1.0
             Squid: 1.0
@@ -313,3 +330,5 @@ Experience:
             Snowman: 0.0
             Parrot: 1.0
             Illusioner: 3.0
+            Drowned: 1.0
+            Dolphin: 1.3
