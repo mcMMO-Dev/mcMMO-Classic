@@ -117,7 +117,7 @@ public class BlockListener implements Listener {
      *
      * @param event The event to watch
      */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
 

@@ -40,3 +40,4 @@
 
 # Atlassian Stuff
 /atlassian-ide-plugin.xml
+*.xml
