@@ -600,6 +600,26 @@ public class EntityListener implements Listener {
                 }
                 return;
 
+            case COD: /*
+             * RESTORES 2 1/2 HUNGER - RESTORES 5 HUNGER @
+             * 1000
+             */
+                if (Permissions.secondaryAbilityEnabled(player, SecondaryAbility.FISHERMANS_DIET)) {
+                    event.setFoodLevel(UserManager.getPlayer(player).getFishingManager().handleFishermanDiet(Fishing.fishermansDietRankLevel2, newFoodLevel));
+                }
+                return;
+
+            case TROPICAL_FISH:
+                if (Permissions.secondaryAbilityEnabled(player, SecondaryAbility.FISHERMANS_DIET)) {
+                    event.setFoodLevel(UserManager.getPlayer(player).getFishingManager().handleFishermanDiet(Fishing.fishermansDietRankLevel2, newFoodLevel));
+                }
+                return;
+            case COOKED_COD: /* RESTORES 1 HUNGER - RESTORES 2 1/2 HUNGER @ 1000 */
+                if (Permissions.secondaryAbilityEnabled(player, SecondaryAbility.FISHERMANS_DIET)) {
+                    event.setFoodLevel(UserManager.getPlayer(player).getFishingManager().handleFishermanDiet(Fishing.fishermansDietRankLevel1, newFoodLevel));
+                }
+                return;
+
             case COOKED_SALMON: /*
                                * RESTORES 2 1/2 HUNGER - RESTORES 5 HUNGER @
                                * 1000
