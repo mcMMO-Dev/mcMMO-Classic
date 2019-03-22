@@ -1,14 +1,13 @@
 package com.gmail.nossr50.util;
 
-import java.util.HashMap;
-
-import org.bukkit.entity.Player;
-
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.datatypes.player.PlayerProfile;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.util.player.UserManager;
+import org.bukkit.entity.Player;
+
+import java.util.HashMap;
 
 public final class HardcoreManager {
     private HardcoreManager() {}

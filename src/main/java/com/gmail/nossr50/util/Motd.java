@@ -1,15 +1,14 @@
 package com.gmail.nossr50.util;
 
-import java.text.DecimalFormat;
-
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
-
-import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
+import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.skills.PerksUtils;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginDescriptionFile;
+
+import java.text.DecimalFormat;
 
 public final class Motd {
     public static final String PERK_PREFIX = LocaleLoader.getString("MOTD.PerksPrefix") + " ";

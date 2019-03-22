@@ -1,10 +1,5 @@
 package com.gmail.nossr50.skills.excavation;
 
-import java.util.List;
-
-import org.bukkit.Location;
-import org.bukkit.block.BlockState;
-
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
@@ -15,6 +10,10 @@ import com.gmail.nossr50.skills.SkillManager;
 import com.gmail.nossr50.util.Misc;
 import com.gmail.nossr50.util.Permissions;
 import com.gmail.nossr50.util.skills.SkillUtils;
+import org.bukkit.Location;
+import org.bukkit.block.BlockState;
+
+import java.util.List;
 
 public class ExcavationManager extends SkillManager {
     public ExcavationManager(McMMOPlayer mcMMOPlayer) {

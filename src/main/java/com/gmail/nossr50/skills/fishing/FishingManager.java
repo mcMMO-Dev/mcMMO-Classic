@@ -35,6 +35,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
+import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -48,8 +49,20 @@ public class FishingManager extends SkillManager {
     private Item fishingCatch;
     private Location hookLocation;
 
+    public static final int FISHING_ROD_CAST_CD_MILLISECONDS = 200;
+    public static final int OVERFISH_LIMIT = 4;
+
+    private long fishingRodCastTimestamp = 0L;
+    private long fishHookSpawnTimestamp = 0L;
+    private long lastWarned = 0L;
+    private long lastWarnedExhaust = 0L;
+    private FishHook fishHookReference;
+    private BoundingBox lastFishingBoundingBox;
+    private int fishCaughtCounter = 1;
+
     public FishingManager(McMMOPlayer mcMMOPlayer) {
         super(mcMMOPlayer, SkillType.FISHING);
+
     }
 
     public boolean canShake(Entity target) {
@@ -58,6 +71,90 @@ public class FishingManager extends SkillManager {
 
     public boolean canMasterAngler() {
         return getSkillLevel() >= AdvancedConfig.getInstance().getMasterAnglerUnlockLevel() && Permissions.secondaryAbilityEnabled(getPlayer(), SecondaryAbility.MASTER_ANGLER);
+    }
+
+    public boolean isExploitingFishing(Vector centerOfCastVector) {
+
+        /*Block targetBlock = getPlayer().getTargetBlock(BlockUtils.getTransparentBlocks(), 100);
+
+        if (!targetBlock.isLiquid()) {
+            return false;
+        }*/
+
+        BoundingBox newCastBoundingBox = makeBoundingBox(centerOfCastVector);
+
+        boolean sameTarget = lastFishingBoundingBox != null && lastFishingBoundingBox.overlaps(newCastBoundingBox);
+
+        if(sameTarget)
+            fishCaughtCounter++;
+        else
+            fishCaughtCounter = 1;
+
+        if(fishCaughtCounter + 1 == OVERFISH_LIMIT)
+        {
+            getPlayer().sendMessage(LocaleLoader.getString("Fishing.LowResources"));
+        }
+
+        //If the new bounding box does not intersect with the old one, then update our bounding box reference
+        if(!sameTarget)
+            lastFishingBoundingBox = newCastBoundingBox;
+
+        return sameTarget && fishCaughtCounter >= OVERFISH_LIMIT;
+    }
+
+    public void setFishHookReference(FishHook fishHook)
+    {
+        if(fishHook.getMetadata(mcMMO.FISH_HOOK_REF_METAKEY).size() > 0)
+            return;
+
+        fishHook.setMetadata(mcMMO.FISH_HOOK_REF_METAKEY, mcMMO.metadataValue);
+        this.fishHookReference = fishHook;
+        fishHookSpawnTimestamp = System.currentTimeMillis();
+        fishingRodCastTimestamp = System.currentTimeMillis();
+
+    }
+
+    public boolean isFishingTooOften()
+    {
+        long currentTime = System.currentTimeMillis();
+        long fishHookSpawnCD = fishHookSpawnTimestamp + 1000;
+        boolean hasFished = (currentTime < fishHookSpawnCD);
+
+        if(hasFished && (lastWarned + (1000 * 1) < currentTime))
+        {
+            getPlayer().sendMessage(LocaleLoader.getString("Fishing.Scared"));
+            lastWarned = System.currentTimeMillis();
+        }
+
+        return hasFished;
+    }
+
+    public static BoundingBox makeBoundingBox(Vector centerOfCastVector) {
+        return BoundingBox.of(centerOfCastVector, 1, 1, 1);
+    }
+
+    public void setFishingRodCastTimestamp()
+    {
+        long currentTime = System.currentTimeMillis();
+        //Only track spam casting if the fishing hook is fresh
+        if(currentTime > fishHookSpawnTimestamp + 500)
+            return;
+
+        if(currentTime < fishingRodCastTimestamp + FISHING_ROD_CAST_CD_MILLISECONDS)
+        {
+            getPlayer().setFoodLevel(Math.max(getPlayer().getFoodLevel() - 1, 0));
+            getPlayer().getInventory().getItemInMainHand().setDurability((short) (getPlayer().getInventory().getItemInMainHand().getDurability() + 5));
+            getPlayer().updateInventory();
+
+            if(lastWarnedExhaust + (1000 * 1) < currentTime)
+            {
+                getPlayer().sendMessage(LocaleLoader.getString("Fishing.Exhausting"));
+                lastWarnedExhaust = currentTime;
+                //SoundManager.sendSound(getPlayer(), getPlayer().getLocation(), SoundType.TIRED);
+            }
+        }
+
+        fishingRodCastTimestamp = System.currentTimeMillis();
     }
 
     public boolean unleashTheKraken() {

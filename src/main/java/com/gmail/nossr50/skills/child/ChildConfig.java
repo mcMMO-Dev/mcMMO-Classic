@@ -1,12 +1,11 @@
 package com.gmail.nossr50.skills.child;
 
-import java.util.EnumSet;
-
-import org.bukkit.configuration.file.YamlConfiguration;
-
 import com.gmail.nossr50.config.AutoUpdateConfigLoader;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.util.StringUtils;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import java.util.EnumSet;
 
 public class ChildConfig extends AutoUpdateConfigLoader {
     public ChildConfig() {

@@ -22,7 +22,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.block.data.BlockData;
 
 import java.util.Map;
 import java.util.Map.Entry;

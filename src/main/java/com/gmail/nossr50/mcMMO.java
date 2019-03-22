@@ -47,7 +47,6 @@ import net.shatteredlands.shatt.backup.ZipLibrary;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -91,6 +90,7 @@ public class mcMMO extends JavaPlugin {
     private boolean xpEventEnabled;
 
     /* Metadata Values */
+    public static final String FISH_HOOK_REF_METAKEY = "mcMMO: Fish Hook Tracker";
     public final static String entityMetadataKey   = "mcMMO: Spawned Entity";
     public final static String blockMetadataKey    = "mcMMO: Piston Tracking";
     public final static String furnaceMetadataKey  = "mcMMO: Tracked Furnace";

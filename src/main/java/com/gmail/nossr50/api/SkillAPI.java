@@ -1,10 +1,10 @@
 package com.gmail.nossr50.api;
 
+import com.gmail.nossr50.datatypes.skills.SkillType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import com.gmail.nossr50.datatypes.skills.SkillType;
 
 public final class SkillAPI {
     private SkillAPI() {}

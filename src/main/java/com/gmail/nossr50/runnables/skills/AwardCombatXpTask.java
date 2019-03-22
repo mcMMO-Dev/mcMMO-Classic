@@ -1,11 +1,10 @@
 package com.gmail.nossr50.runnables.skills;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.datatypes.skills.XPGainReason;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class AwardCombatXpTask extends BukkitRunnable {
     private McMMOPlayer mcMMOPlayer;

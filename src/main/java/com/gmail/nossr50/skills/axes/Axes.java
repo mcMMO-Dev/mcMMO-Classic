@@ -1,10 +1,9 @@
 package com.gmail.nossr50.skills.axes;
 
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.inventory.ItemStack;
-
 import com.gmail.nossr50.config.AdvancedConfig;
 import com.gmail.nossr50.util.ItemUtils;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.inventory.ItemStack;
 
 public class Axes {
     public static double axeMasteryMaxBonus      = AdvancedConfig.getInstance().getAxeMasteryBonusMax();

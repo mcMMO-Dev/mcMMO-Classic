@@ -1,10 +1,9 @@
 package com.gmail.nossr50.chat;
 
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
 import com.gmail.nossr50.events.chat.McMMOChatEvent;
 import com.gmail.nossr50.locale.LocaleLoader;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public abstract class ChatManager {
     protected Plugin plugin;

@@ -1,10 +1,9 @@
 package com.gmail.nossr50.events.experience;
 
-import org.bukkit.entity.Player;
-import org.bukkit.event.HandlerList;
-
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.datatypes.skills.XPGainReason;
+import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 
 /**
  * Called when a user loses levels in a skill

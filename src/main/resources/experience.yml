@@ -6,6 +6,9 @@
 #
 #####
 
+ExploitFix:
+    Fishing: true
+
 #
 #  Settings for XP formula
 ###

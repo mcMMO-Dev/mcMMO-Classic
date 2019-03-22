@@ -177,6 +177,9 @@ public class ExperienceConfig extends AutoUpdateConfigLoader {
      * XP SETTINGS
      */
 
+    /* EXPLOIT */
+    public boolean isFishingExploitingPrevented() { return config.getBoolean("ExploitFix.Fishing", true); }
+
     /* General Settings */
     public boolean getExperienceGainsPlayerVersusPlayerEnabled() { return config.getBoolean("Experience.PVP.Rewards", true); }
 

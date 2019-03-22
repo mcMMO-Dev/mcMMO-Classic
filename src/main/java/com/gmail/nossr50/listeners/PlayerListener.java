@@ -35,6 +35,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
@@ -248,6 +249,29 @@ public class PlayerListener implements Listener {
         FishingManager fishingManager = UserManager.getPlayer(player).getFishingManager();
         Entity caught = event.getCaught();
 
+        //Fishing Exploit Prevention
+        if(ExperienceConfig.getInstance().isFishingExploitingPrevented())
+        {
+            if(event.getHook().getMetadata(mcMMO.FISH_HOOK_REF_METAKEY).size() == 0)
+            {
+                fishingManager.setFishHookReference(event.getHook());
+            }
+
+            //Spam Fishing
+            if(event.getState() == PlayerFishEvent.State.CAUGHT_FISH && fishingManager.isFishingTooOften())
+            {
+                event.setExpToDrop(0);
+
+                if(caught instanceof Item)
+                {
+                    Item caughtItem = (Item) caught;
+                    caughtItem.remove();
+                }
+
+                return;
+            }
+        }
+
         switch (event.getState()) {
             case FISHING:
                 if (fishingManager.canMasterAngler()) {
@@ -256,6 +280,17 @@ public class PlayerListener implements Listener {
                 return;
 
             case CAUGHT_FISH:
+                if(ExperienceConfig.getInstance().isFishingExploitingPrevented())
+                {
+                    if(fishingManager.isExploitingFishing(event.getHook().getLocation().toVector()))
+                    {
+                        player.sendMessage(LocaleLoader.getString("Fishing.Scarcity"));
+                        event.setExpToDrop(0);
+                        Item caughtItem = (Item) caught;
+                        caughtItem.remove();
+                        return;
+                    }
+                }
                 fishingManager.handleFishing((Item) caught);
                 return;
 
@@ -407,6 +442,15 @@ public class PlayerListener implements Listener {
         MiningManager miningManager = mcMMOPlayer.getMiningManager();
         Block block = event.getClickedBlock();
         ItemStack heldItem = player.getInventory().getItemInMainHand();
+
+        //Spam Fishing Detection
+        if(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)
+        {
+            if(heldItem.getType() == Material.FISHING_ROD || player.getInventory().getItemInOffHand().getType() == Material.FISHING_ROD)
+            {
+                mcMMOPlayer.getFishingManager().setFishingRodCastTimestamp();
+            }
+        }
 
         switch (event.getAction()) {
             case RIGHT_CLICK_BLOCK:
