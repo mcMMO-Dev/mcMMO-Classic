@@ -28,6 +28,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,6 +46,27 @@ public class BlockListener implements Listener {
 
     public BlockListener(final mcMMO plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBlockDropItemEvent(BlockDropItemEvent event)
+    {
+/*
+        if(event.getItems().size() > 0)
+            Bukkit.broadcastMessage("Number of drops for \""+event.getItems().get(0).getItemStack().getType().toString()+"\": "+event.getItems().size());
+*/
+
+        for(Item item : event.getItems())
+        {
+            ItemStack is = new ItemStack(item.getItemStack());
+            if(event.getBlock().getState().getMetadata(mcMMO.doubleDropKey).size() > 0)
+                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+            else if(event.getBlock().getState().getMetadata(mcMMO.tripleDropKey).size() > 0)
+            {
+                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+            }
+        }
     }
 
     /**

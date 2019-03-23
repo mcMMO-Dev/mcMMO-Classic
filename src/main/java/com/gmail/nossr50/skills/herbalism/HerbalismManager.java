@@ -22,7 +22,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import java.util.Collection;
 import java.util.List;
 
 public class HerbalismManager extends SkillManager {
@@ -121,8 +120,7 @@ public class HerbalismManager extends SkillManager {
             return;
         }
 
-        Collection<ItemStack> drops = null;
-        int amount = 1;
+        int amount;
         int xp;
         boolean greenTerra = mcMMOPlayer.getAbilityMode(skill.getAbility());
 
@@ -131,25 +129,26 @@ public class HerbalismManager extends SkillManager {
             xp = customBlock.getXpGain();
 
             if (Permissions.secondaryAbilityEnabled(player, SecondaryAbility.HERBALISM_DOUBLE_DROPS) && customBlock.isDoubleDropEnabled()) {
-                drops = blockState.getBlock().getDrops();
+                if(checkDoubleDrop(blockState))
+                    BlockUtils.markBlocksForBonusDrops(blockState, greenTerra);
             }
         }
         else {
             xp = ExperienceConfig.getInstance().getXp(skill, blockState.getBlockData());
 
-            if (Config.getInstance().getDoubleDropsEnabled(skill, material) && Permissions.secondaryAbilityEnabled(player, SecondaryAbility.HERBALISM_DOUBLE_DROPS)) {
-                drops = blockState.getBlock().getDrops();
-            }
-
             if (!oneBlockPlant) {
                 //Kelp is actually two blocks mixed together
                 if(material == Material.KELP_PLANT || material == Material.KELP) {
-                    amount = Herbalism.calculateKelpPlantDrops(blockState);
+                    amount = Herbalism.countAndMarkDoubleDropsKelp(blockState, greenTerra,this);
                 } else {
-                    amount = Herbalism.calculateMultiBlockPlantDrops(blockState);
+                    amount = Herbalism.countAndMarkDoubleDropsMultiBlockPlant(blockState, greenTerra, this);
                 }
 
                 xp *= amount;
+            } else {
+                /* MARK SINGLE BLOCK CROP FOR DOUBLE DROP */
+                if(checkDoubleDrop(blockState))
+                    BlockUtils.markBlocksForBonusDrops(blockState, greenTerra);
             }
             
             if (Permissions.greenThumbPlant(player, material)) {
@@ -158,18 +157,16 @@ public class HerbalismManager extends SkillManager {
         }
 
         applyXpGain(xp, XPGainReason.PVE);
+    }
 
-        if (drops == null) {
-            return;
-        }
-
-        for (int i = greenTerra ? 2 : 1; i != 0; i--) {
-            if (SkillUtils.activationSuccessful(SecondaryAbility.HERBALISM_DOUBLE_DROPS, getPlayer(), getSkillLevel(), activationChance)) {
-                for (ItemStack item : drops) {
-                    Misc.dropItems(Misc.getBlockCenter(blockState), item, amount);
-                }
-            }
-        }
+    /**
+     * Check for success on herbalism double drops
+     * @param blockState target block state
+     * @return true if double drop succeeds
+     */
+    public boolean checkDoubleDrop(BlockState blockState)
+    {
+        return BlockUtils.checkDoubleDrops(getPlayer(), blockState, skill, getSkillLevel(), SecondaryAbility.HERBALISM_DOUBLE_DROPS, activationChance);
     }
 
     /**
@@ -302,10 +299,6 @@ public class HerbalismManager extends SkillManager {
 
         ItemStack seedStack = new ItemStack(seed);
 
-        if (!playerInventory.containsAtLeast(seedStack, 1)) {
-            return;
-        }
-
         if (!greenTerra && !SkillUtils.activationSuccessful(SecondaryAbility.GREEN_THUMB_PLANT, getPlayer(), getSkillLevel(), activationChance)) {
             return;
         }
@@ -314,8 +307,16 @@ public class HerbalismManager extends SkillManager {
             return;
         }
 
-        playerInventory.removeItem(seedStack);
-        player.updateInventory(); // Needed until replacement available
+        if(!ItemUtils.isHoe(getPlayer().getInventory().getItemInMainHand()))
+        {
+            if (!playerInventory.containsAtLeast(seedStack, 1)) {
+                return;
+            }
+
+            playerInventory.removeItem(seedStack);
+            player.updateInventory(); // Needed until replacement available
+        }
+
         new HerbalismBlockUpdaterTask(blockState).runTaskLater(mcMMO.p, 0);
     }
 

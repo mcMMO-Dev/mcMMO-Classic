@@ -1,20 +1,54 @@
 package com.gmail.nossr50.util;
 
+import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.skills.repair.Repair;
 import com.gmail.nossr50.skills.salvage.Salvage;
+import com.gmail.nossr50.util.player.UserManager;
+import com.gmail.nossr50.util.skills.SkillUtils;
+import org.bukkit.CropState;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 
 public final class BlockUtils {
 
     private BlockUtils() {}
+
+    /**
+     * Mark a block for giving bonus drops, double drops are used if triple is false
+     * @param blockState target blockstate
+     * @param triple marks the block to give triple drops
+     */
+    public static void markBlocksForBonusDrops(BlockState blockState, boolean triple)
+    {
+        if(triple)
+            blockState.setMetadata(mcMMO.tripleDropKey, mcMMO.metadataValue);
+        else
+            blockState.setMetadata(mcMMO.doubleDropKey, mcMMO.metadataValue);
+    }
+
+    /**
+     * Checks if a player successfully passed the double drop check
+     * @param blockState the blockstate
+     * @return true if the player succeeded in the check
+     */
+    public static boolean checkDoubleDrops(Player player, BlockState blockState, SkillType skillType, int skillLevel, SecondaryAbility secondaryAbility, int activationChance)
+    {
+        if(Config.getInstance().getDoubleDropsEnabled(skillType, blockState.getType()) && Permissions.secondaryAbilityEnabled(player, secondaryAbility))
+        {
+            return SkillUtils.activationSuccessful(secondaryAbility, player, skillLevel, activationChance);
+        }
+
+        return false;
+    }
 
     /**
      * Checks to see if a given block awards XP.
