@@ -49,7 +49,7 @@ public class FishingManager extends SkillManager {
     private Item fishingCatch;
     private Location hookLocation;
 
-    public static final int FISHING_ROD_CAST_CD_MILLISECONDS = 200;
+    public static final int FISHING_ROD_CAST_CD_MILLISECONDS = 100;
     public static final int OVERFISH_LIMIT = 4;
 
     private long fishingRodCastTimestamp = 0L;
@@ -137,7 +137,7 @@ public class FishingManager extends SkillManager {
     {
         long currentTime = System.currentTimeMillis();
         //Only track spam casting if the fishing hook is fresh
-        if(currentTime > fishHookSpawnTimestamp + 500)
+        if(currentTime > fishHookSpawnTimestamp + 1000)
             return;
 
         if(currentTime < fishingRodCastTimestamp + FISHING_ROD_CAST_CD_MILLISECONDS)
