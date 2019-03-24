@@ -32,6 +32,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.*;
+import org.bukkit.entity.minecart.PoweredMinecart;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -448,6 +449,12 @@ public class PlayerListener implements Listener {
         {
             if(heldItem.getType() == Material.FISHING_ROD || player.getInventory().getItemInOffHand().getType() == Material.FISHING_ROD)
             {
+                if(player.isInsideVehicle() && (player.getVehicle() instanceof Minecart || player.getVehicle() instanceof PoweredMinecart))
+                {
+                    player.getVehicle().eject();
+                    player.setVelocity(player.getEyeLocation().getDirection().multiply(10));
+                }
+                
                 mcMMOPlayer.getFishingManager().setFishingRodCastTimestamp();
             }
         }
