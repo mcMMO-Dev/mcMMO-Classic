@@ -22,10 +22,7 @@ import com.gmail.nossr50.util.*;
 import com.gmail.nossr50.util.player.UserManager;
 import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.*;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.BrewingStand;
+import org.bukkit.block.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -51,11 +48,6 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockDropItemEvent(BlockDropItemEvent event)
     {
-/*
-        if(event.getItems().size() > 0)
-            Bukkit.broadcastMessage("Number of drops for \""+event.getItems().get(0).getItemStack().getType().toString()+"\": "+event.getItems().size());
-*/
-
         for(Item item : event.getItems())
         {
             ItemStack is = new ItemStack(item.getItemStack());
@@ -63,10 +55,19 @@ public class BlockListener implements Listener {
             if(is.getAmount() <= 0)
                 continue;
 
+            //Extra Protection
+            if(event.getBlock().getState() instanceof Container)
+                return;
+
             if(event.getBlock().getState().getMetadata(mcMMO.doubleDropKey).size() > 0)
+            {
+                event.getBlock().getState().removeMetadata(mcMMO.doubleDropKey, plugin);
                 event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+            }
+
             else if(event.getBlock().getState().getMetadata(mcMMO.tripleDropKey).size() > 0)
             {
+                event.getBlock().getState().removeMetadata(mcMMO.tripleDropKey, plugin);
                 event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
                 event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
             }

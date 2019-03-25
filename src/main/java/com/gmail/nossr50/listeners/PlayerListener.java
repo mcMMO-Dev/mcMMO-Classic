@@ -454,7 +454,7 @@ public class PlayerListener implements Listener {
                     player.getVehicle().eject();
                     player.setVelocity(player.getEyeLocation().getDirection().multiply(10));
                 }
-                
+
                 mcMMOPlayer.getFishingManager().setFishingRodCastTimestamp();
             }
         }
