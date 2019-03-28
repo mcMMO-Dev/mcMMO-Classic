@@ -122,7 +122,7 @@ public final class CombatUtils {
         }
 
         if (unarmedManager.canUseBerserk()) {
-            finalDamage += unarmedManager.berserkDamage(initialDamage);
+            finalDamage += unarmedManager.berserkDamage(finalDamage);
         }
 
         if (unarmedManager.canDisarm(target)) {
