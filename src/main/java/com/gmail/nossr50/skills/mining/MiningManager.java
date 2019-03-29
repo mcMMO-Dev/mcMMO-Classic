@@ -19,7 +19,6 @@ import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.inventory.ItemStack;
@@ -75,7 +74,7 @@ public class MiningManager extends SkillManager {
         }
 
         if (SkillUtils.activationSuccessful(SecondaryAbility.MINING_DOUBLE_DROPS, getPlayer(), getSkillLevel(), activationChance)) {
-            BlockUtils.markBlocksForBonusDrops(blockState, mcMMOPlayer.getAbilityMode(skill.getAbility()));
+            BlockUtils.spawnBonusDrops(blockState, mcMMOPlayer.getAbilityMode(skill.getAbility()));
         }
     }
 

@@ -1,16 +1,13 @@
 package com.gmail.nossr50.skills.herbalism;
 
 import com.gmail.nossr50.config.AdvancedConfig;
-import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.util.BlockUtils;
-import com.gmail.nossr50.util.player.UserManager;
 import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 
@@ -78,7 +75,7 @@ public class Herbalism {
             amount += 1;
 
             if(herbalismManager.checkDoubleDrop(relativeUpBlock.getState()))
-                BlockUtils.markBlocksForBonusDrops(relativeUpBlock.getState(), triple);
+                BlockUtils.spawnBonusDrops(relativeUpBlock.getState(), triple);
 
         }
 
@@ -126,7 +123,7 @@ public class Herbalism {
             dropAmount++;
 
             if(herbalismManager.checkDoubleDrop(target.getState()))
-                BlockUtils.markBlocksForBonusDrops(target.getState(), triple);
+                BlockUtils.spawnBonusDrops(target.getState(), triple);
         }
 
         for (BlockFace blockFace : new BlockFace[] { BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST ,BlockFace.WEST})
@@ -169,7 +166,7 @@ public class Herbalism {
                     dropAmount++;
 
                     if(herbalismManager.checkDoubleDrop(relativeBlock.getState()))
-                        BlockUtils.markBlocksForBonusDrops(relativeBlock.getState(), triple);
+                        BlockUtils.spawnBonusDrops(relativeBlock.getState(), triple);
                 }
             }
         }
