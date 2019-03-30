@@ -574,7 +574,7 @@ public final class SQLDatabaseManager implements DatabaseManager {
                     resultSet.close();
                     statement.close();
 
-                    if (!playerName.isEmpty() && !playerName.equals(name)) {
+                    if (uuid != null && !playerName.isEmpty() && !playerName.equalsIgnoreCase(name)) {
                         statement = connection.prepareStatement(
                                 "UPDATE `" + tablePrefix + "users` "
                                         + "SET user = ? "
