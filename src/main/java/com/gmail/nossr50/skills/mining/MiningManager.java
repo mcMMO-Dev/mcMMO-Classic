@@ -74,7 +74,7 @@ public class MiningManager extends SkillManager {
         }
 
         if (SkillUtils.activationSuccessful(SecondaryAbility.MINING_DOUBLE_DROPS, getPlayer(), getSkillLevel(), activationChance)) {
-            BlockUtils.spawnBonusDrops(blockState, mcMMOPlayer.getAbilityMode(skill.getAbility()));
+            BlockUtils.markDropsAsBonus(blockState, mcMMOPlayer.getAbilityMode(skill.getAbility()));
         }
     }
 

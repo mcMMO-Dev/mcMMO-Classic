@@ -75,7 +75,7 @@ public class Herbalism {
             amount += 1;
 
             if(herbalismManager.checkDoubleDrop(relativeUpBlock.getState()))
-                BlockUtils.spawnBonusDrops(relativeUpBlock.getState(), triple);
+                BlockUtils.markDropsAsBonus(relativeUpBlock.getState(), triple);
 
         }
 
@@ -123,7 +123,7 @@ public class Herbalism {
             dropAmount++;
 
             if(herbalismManager.checkDoubleDrop(target.getState()))
-                BlockUtils.spawnBonusDrops(target.getState(), triple);
+                BlockUtils.markDropsAsBonus(target.getState(), triple);
         }
 
         for (BlockFace blockFace : new BlockFace[] { BlockFace.UP, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST ,BlockFace.WEST})
@@ -166,7 +166,7 @@ public class Herbalism {
                     dropAmount++;
 
                     if(herbalismManager.checkDoubleDrop(relativeBlock.getState()))
-                        BlockUtils.spawnBonusDrops(relativeBlock.getState(), triple);
+                        BlockUtils.markDropsAsBonus(relativeBlock.getState(), triple);
                 }
             }
         }

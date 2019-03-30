@@ -13,7 +13,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.HashSet;
 
@@ -21,15 +20,17 @@ public final class BlockUtils {
 
     private BlockUtils() {}
 
-    public static void spawnBonusDrops(BlockState blockState, boolean triple)
+    /**
+     * Mark a block for giving bonus drops, double drops are used if triple is false
+     * @param blockState target blockstate
+     * @param triple marks the block to give triple drops
+     */
+    public static void markDropsAsBonus(BlockState blockState, boolean triple)
     {
-        for(ItemStack spawnItem : blockState.getBlock().getDrops())
-        {
-            if(triple)
-                blockState.getWorld().dropItemNaturally(blockState.getLocation(), spawnItem);
-
-            blockState.getWorld().dropItemNaturally(blockState.getLocation(), spawnItem);
-        }
+        if(triple)
+            blockState.setMetadata(mcMMO.tripleDrops, mcMMO.metadataValue);
+        else
+            blockState.setMetadata(mcMMO.doubleDrops, mcMMO.metadataValue);
     }
 
     /**

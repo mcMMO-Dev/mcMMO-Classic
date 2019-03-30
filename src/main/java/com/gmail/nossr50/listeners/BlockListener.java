@@ -28,6 +28,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -45,6 +46,35 @@ public class BlockListener implements Listener {
 
     public BlockListener(final mcMMO plugin) {
         this.plugin = plugin;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBlockDropItemEvent(BlockDropItemEvent event)
+    {
+        for(Item item : event.getItems())
+        {
+            ItemStack is = new ItemStack(item.getItemStack());
+
+            if(is.getAmount() <= 0)
+                continue;
+
+            if(!Config.getInstance().getDoubleDropsEnabled(SkillType.MINING, is.getType())
+                    && !Config.getInstance().getDoubleDropsEnabled(SkillType.HERBALISM, is.getType())
+                    && !Config.getInstance().getDoubleDropsEnabled(SkillType.WOODCUTTING, is.getType()))
+                continue;
+
+            if(event.getBlock().getState().getMetadata(mcMMO.doubleDrops).size() > 0)
+            {
+                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+                event.getBlock().getState().removeMetadata(mcMMO.doubleDrops, plugin);
+            }
+            else if(event.getBlock().getState().getMetadata(mcMMO.tripleDrops).size() > 0)
+            {
+                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+                event.getBlock().getState().removeMetadata(mcMMO.tripleDrops, plugin);
+            }
+        }
     }
 
 /*    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
