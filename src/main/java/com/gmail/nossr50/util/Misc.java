@@ -9,10 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Item;
-import org.bukkit.entity.NPC;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
@@ -56,7 +53,10 @@ public final class Misc {
     }
 
     public static boolean isNPCEntity(Entity entity) {
-        return (entity == null || entity.hasMetadata("NPC") || entity instanceof NPC || entity.getClass().getName().equalsIgnoreCase("cofh.entity.PlayerFake"));
+        return (entity == null
+                || (entity.hasMetadata("NPC") && !(entity instanceof Villager))
+                || (entity instanceof NPC && !(entity instanceof Villager))
+                || entity.getClass().getName().equalsIgnoreCase("cofh.entity.PlayerFake"));
     }
 
     /**
