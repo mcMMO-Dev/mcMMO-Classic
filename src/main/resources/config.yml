@@ -410,7 +410,7 @@ Skills:
 #
 #  Settings for Double Drops
 ###
-Double_Drops:
+Bonus_Drops:
     Herbalism:
         Beetroots: true
         Brown_Mushroom: true
