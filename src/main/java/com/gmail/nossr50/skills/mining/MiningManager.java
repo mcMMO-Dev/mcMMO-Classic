@@ -63,15 +63,14 @@ public class MiningManager extends SkillManager {
             return;
         }
 
-        Material material = blockState.getType();
-
         if (mcMMOPlayer.getAbilityMode(skill.getAbility())) {
             SkillUtils.handleDurabilityChange(getPlayer().getInventory().getItemInMainHand(), Config.getInstance().getAbilityToolDamage());
         }
 
-        if ((mcMMO.getModManager().isCustomMiningBlock(blockState) && !mcMMO.getModManager().getBlock(blockState).isDoubleDropEnabled()) || !Config.getInstance().getDoubleDropsEnabled(skill, material)) {
-            return;
-        }
+//        if ((mcMMO.getModManager().isCustomMiningBlock(blockState)
+//                && !mcMMO.getModManager().getBlock(blockState).isDoubleDropEnabled())) {
+//            return;
+//        }
 
         if (SkillUtils.activationSuccessful(SecondaryAbility.MINING_DOUBLE_DROPS, getPlayer(), getSkillLevel(), activationChance)) {
             BlockUtils.markDropsAsBonus(blockState, mcMMOPlayer.getAbilityMode(skill.getAbility()));

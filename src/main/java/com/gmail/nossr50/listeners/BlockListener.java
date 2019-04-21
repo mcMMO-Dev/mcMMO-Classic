@@ -63,6 +63,7 @@ public class BlockListener implements Listener {
                     && !Config.getInstance().getDoubleDropsEnabled(SkillType.WOODCUTTING, is.getType()))
                 continue;
 
+            //TODO: Should just store the amount of drops in the metadata itself and use a loop
             if(event.getBlock().getState().getMetadata(mcMMO.doubleDrops).size() > 0)
             {
                 event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
