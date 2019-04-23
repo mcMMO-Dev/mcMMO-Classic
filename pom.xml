@@ -126,14 +126,8 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
-
     </repositories>
     <dependencies>
-        <dependency>
-            <groupId>com.google</groupId>
-            <artifactId>gson</artifactId>
-            <version>RELEASE</version>
-        </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
