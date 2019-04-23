@@ -592,8 +592,8 @@ public final class ItemUtils {
             case NETHER_WART:
             case BROWN_MUSHROOM:
             case RED_MUSHROOM:
-            case ROSE_RED:
-            case DANDELION_YELLOW:
+            case ROSE_BUSH:
+            case DANDELION:
             case CACTUS:
             case SUGAR_CANE:
             case MELON:
@@ -659,7 +659,7 @@ public final class ItemUtils {
             case ROTTEN_FLESH:
             case GOLD_NUGGET:
             case EGG:
-            case ROSE_RED:
+            case ROSE_BUSH:
             case COAL:
                 return true;
 

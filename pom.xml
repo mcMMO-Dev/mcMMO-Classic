@@ -126,12 +126,18 @@
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
         </repository>
+
     </repositories>
     <dependencies>
         <dependency>
-            <groupId>org.bukkit</groupId>
-            <artifactId>bukkit</artifactId>
-            <version>1.13.2-R0.1-SNAPSHOT</version>
+            <groupId>com.google</groupId>
+            <artifactId>gson</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.14-pre5-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
