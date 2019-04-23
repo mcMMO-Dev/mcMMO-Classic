@@ -68,6 +68,7 @@ public class mcMMO extends JavaPlugin {
     private static FormulaManager     formulaManager;
     private static HolidayManager     holidayManager;
     private static UpgradeManager     upgradeManager;
+    private static MaterialMapStore materialMapStore;
 
     /* File Paths */
     private static String mainDirectory;
@@ -189,6 +190,12 @@ public class mcMMO extends JavaPlugin {
 
             getServer().getPluginManager().disablePlugin(this);
         }
+
+        MaterialMapStore materialMapStore = new MaterialMapStore();
+    }
+
+    public static MaterialMapStore getMaterialMapStore() {
+        return materialMapStore;
     }
 
     /**
