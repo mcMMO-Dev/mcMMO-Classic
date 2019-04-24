@@ -191,7 +191,7 @@ public class mcMMO extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
         }
 
-        MaterialMapStore materialMapStore = new MaterialMapStore();
+        materialMapStore = new MaterialMapStore();
     }
 
     public static MaterialMapStore getMaterialMapStore() {
