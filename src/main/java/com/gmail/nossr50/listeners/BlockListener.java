@@ -151,34 +151,6 @@ public class BlockListener implements Listener {
     }
 
     /**
-     * Monitor falling blocks.
-     *
-     * @param event The event to watch
-     */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onFallingBlock(EntityChangeBlockEvent event) {
-
-        if (BlockUtils.shouldBeWatched(event.getBlock().getState()) && event.getEntityType().equals(EntityType.FALLING_BLOCK)) {
-            if (event.getTo().equals(Material.AIR) && mcMMO.getPlaceStore().isTrue(event.getBlock())) {
-                event.getEntity().setMetadata("mcMMOBlockFall", new FixedMetadataValue( plugin, event.getBlock().getLocation()));
-            } else {
-                List<MetadataValue> values = event.getEntity().getMetadata( "mcMMOBlockFall" );
-
-                if (!values.isEmpty()) {
-
-                    if (values.get(0).value() == null) return;
-                    Block spawn = ((org.bukkit.Location) values.get(0).value()).getBlock();
-
-
-                    mcMMO.getPlaceStore().setTrue( event.getBlock() );
-                    mcMMO.getPlaceStore().setFalse( spawn );
-
-                }
-            }
-        }
-    }
-
-    /**
      * Monitor BlockPlace events.
      *
      * @param event The event to watch
