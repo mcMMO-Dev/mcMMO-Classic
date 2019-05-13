@@ -50,7 +50,7 @@ public class FishingManager extends SkillManager {
     private Location hookLocation;
 
     public static final int FISHING_ROD_CAST_CD_MILLISECONDS = 100;
-    public static final int OVERFISH_LIMIT = 4;
+    public static final int OVERFISH_LIMIT = 10;
 
     private long fishingRodCastTimestamp = 0L;
     private long fishHookSpawnTimestamp = 0L;
@@ -92,7 +92,7 @@ public class FishingManager extends SkillManager {
 
         if(fishCaughtCounter + 1 == OVERFISH_LIMIT)
         {
-            getPlayer().sendMessage(LocaleLoader.getString("Fishing.LowResources"));
+            getPlayer().sendMessage(LocaleLoader.getString("Fishing.LowResourcesTip", 3));
         }
 
         //If the new bounding box does not intersect with the old one, then update our bounding box reference
