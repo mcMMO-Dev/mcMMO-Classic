@@ -2,6 +2,7 @@ package com.gmail.nossr50.listeners;
 
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.HiddenConfig;
+import com.gmail.nossr50.datatypes.meta.BonusDropMeta;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.AbilityType;
 import com.gmail.nossr50.datatypes.skills.SkillType;
@@ -58,22 +59,21 @@ public class BlockListener implements Listener {
             if(is.getAmount() <= 0)
                 continue;
 
+            //TODO: Ignore this abomination its rewritten in 2.2
             if(!Config.getInstance().getDoubleDropsEnabled(SkillType.MINING, is.getType())
                     && !Config.getInstance().getDoubleDropsEnabled(SkillType.HERBALISM, is.getType())
                     && !Config.getInstance().getDoubleDropsEnabled(SkillType.WOODCUTTING, is.getType()))
                 continue;
 
-            //TODO: Should just store the amount of drops in the metadata itself and use a loop
-            if(event.getBlock().getState().getMetadata(mcMMO.doubleDrops).size() > 0)
-            {
-                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
-                event.getBlock().getState().removeMetadata(mcMMO.doubleDrops, plugin);
-            }
-            else if(event.getBlock().getState().getMetadata(mcMMO.tripleDrops).size() > 0)
-            {
-                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
-                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
-                event.getBlock().getState().removeMetadata(mcMMO.tripleDrops, plugin);
+            if (event.getBlock().getMetadata(mcMMO.BONUS_DROPS_METAKEY).size() > 0) {
+                BonusDropMeta bonusDropMeta = (BonusDropMeta) event.getBlock().getMetadata(mcMMO.BONUS_DROPS_METAKEY).get(0);
+                int bonusCount = bonusDropMeta.asInt();
+
+                for (int i = 0; i < bonusCount; i++) {
+                    event.getBlock().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+                }
+
+                event.getBlock().removeMetadata(mcMMO.BONUS_DROPS_METAKEY, plugin);
             }
         }
     }

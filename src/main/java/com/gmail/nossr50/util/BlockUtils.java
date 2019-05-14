@@ -2,6 +2,7 @@ package com.gmail.nossr50.util;
 
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+import com.gmail.nossr50.datatypes.meta.BonusDropMeta;
 import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.mcMMO;
@@ -22,15 +23,24 @@ public final class BlockUtils {
 
     /**
      * Mark a block for giving bonus drops, double drops are used if triple is false
+     *
      * @param blockState target blockstate
-     * @param triple marks the block to give triple drops
+     * @param triple     marks the block to give triple drops
      */
-    public static void markDropsAsBonus(BlockState blockState, boolean triple)
-    {
-        if(triple)
-            blockState.setMetadata(mcMMO.tripleDrops, mcMMO.metadataValue);
+    public static void markDropsAsBonus(BlockState blockState, boolean triple) {
+        if (triple)
+            blockState.setMetadata(mcMMO.BONUS_DROPS_METAKEY, new BonusDropMeta(2, mcMMO.p));
         else
-            blockState.setMetadata(mcMMO.doubleDrops, mcMMO.metadataValue);
+            blockState.setMetadata(mcMMO.BONUS_DROPS_METAKEY, new BonusDropMeta(1, mcMMO.p));
+    }
+
+    /**
+     * Marks a block to drop extra copies of items
+     * @param blockState target blockstate
+     * @param amount amount of extra items to drop
+     */
+    public static void markDropsAsBonus(BlockState blockState, int amount) {
+        blockState.setMetadata(mcMMO.BONUS_DROPS_METAKEY, new BonusDropMeta(amount, mcMMO.p));
     }
 
     /**
