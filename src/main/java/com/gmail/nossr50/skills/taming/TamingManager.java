@@ -207,6 +207,14 @@ public class TamingManager extends SkillManager {
     }
 
     public void attackTarget(LivingEntity target) {
+        if(target instanceof Tameable)
+        {
+            Tameable tameable = (Tameable) target;
+            if(tameable.getOwner() == getPlayer())
+            {
+                return;
+            }
+        }
         double range = 5;
         Player player = getPlayer();
 
