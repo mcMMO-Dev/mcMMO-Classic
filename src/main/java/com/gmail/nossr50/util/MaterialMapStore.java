@@ -218,6 +218,16 @@ public class MaterialMapStore {
         abilityBlackList.add("yellow_shulker_box");
         abilityBlackList.add("wall_sign"); //1.13 and lower?
         abilityBlackList.add("sign"); //1.13 and lower?
+        abilityBlackList.add("blast_furnace");
+        abilityBlackList.add("cartography_table");
+        abilityBlackList.add("grindstone");
+        abilityBlackList.add("lectern");
+        abilityBlackList.add("loom");
+        abilityBlackList.add("scaffolding");
+        abilityBlackList.add("smoker");
+        abilityBlackList.add("stonecutter");
+        abilityBlackList.add("sweet_berry_bush");
+
     }
 
     private void filltoolBlackList()
