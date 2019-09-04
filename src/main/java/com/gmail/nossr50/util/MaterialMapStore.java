@@ -227,6 +227,9 @@ public class MaterialMapStore {
         abilityBlackList.add("smoker");
         abilityBlackList.add("stonecutter");
         abilityBlackList.add("sweet_berry_bush");
+        abilityBlackList.add("iron_block");
+        abilityBlackList.add("gold_block");
+        abilityBlackList.add("bell");
 
     }
 
