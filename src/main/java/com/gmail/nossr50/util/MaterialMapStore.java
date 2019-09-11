@@ -230,6 +230,7 @@ public class MaterialMapStore {
         abilityBlackList.add("iron_block");
         abilityBlackList.add("gold_block");
         abilityBlackList.add("bell");
+        abilityBlackList.add("barrel");
 
     }
 
