@@ -55,17 +55,22 @@ public class UnarmedManager extends SkillManager {
     }
 
     public boolean blockCrackerCheck(BlockState blockState) {
+        if (!Unarmed.blockCrackerSmoothBrick) {
+            return false;
+        }
+
         if (!SkillUtils.activationSuccessful(SecondaryAbility.BLOCK_CRACKER, getPlayer())) {
             return false;
         }
 
         switch (blockState.getType()) {
             case STONE_BRICKS:
-                if (!Unarmed.blockCrackerSmoothBrick) {
-                    return false;
-                }
 
-                blockState.setType(Material.CRACKED_STONE_BRICKS);
+                blockState.getBlock().setType(Material.CRACKED_STONE_BRICKS);
+                return true;
+            case INFESTED_STONE_BRICKS:
+
+                blockState.getBlock().setType(Material.INFESTED_CRACKED_STONE_BRICKS);
                 return true;
 
             default:
