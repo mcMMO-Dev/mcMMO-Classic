@@ -40,6 +40,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class BlockListener implements Listener {
@@ -52,66 +53,62 @@ public class BlockListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockDropItemEvent(BlockDropItemEvent event)
     {
-        for(Item item : event.getItems())
-        {
-            ItemStack is = new ItemStack(item.getItemStack());
+        //Track how many "things" are being dropped
+        HashSet<Material> uniqueMaterials = new HashSet<>();
+        boolean dontRewardTE = false; //If we suspect TEs are mixed in with other things don't reward bonus drops for anything that isn't a block
+        int blockCount = 0;
 
-            if(is.getAmount() <= 0)
-                continue;
+        for(Item item : event.getItems()) {
+            //Track unique materials
+            uniqueMaterials.add(item.getItemStack().getType());
 
-            //TODO: Ignore this abomination its rewritten in 2.2
-            if(!Config.getInstance().getDoubleDropsEnabled(SkillType.MINING, is.getType())
-                    && !Config.getInstance().getDoubleDropsEnabled(SkillType.HERBALISM, is.getType())
-                    && !Config.getInstance().getDoubleDropsEnabled(SkillType.WOODCUTTING, is.getType()))
-                continue;
+            //Count blocks as a second failsafe
+            if(item.getItemStack().getType().isBlock())
+                blockCount++;
+        }
 
-            if (event.getBlock().getMetadata(mcMMO.BONUS_DROPS_METAKEY).size() > 0) {
-                BonusDropMeta bonusDropMeta = (BonusDropMeta) event.getBlock().getMetadata(mcMMO.BONUS_DROPS_METAKEY).get(0);
-                int bonusCount = bonusDropMeta.asInt();
+        if(uniqueMaterials.size() > 1) {
+            //Too many things are dropping, assume tile entities might be duped
+            //Technically this would also prevent something like coal from being bonus dropped if you placed a TE above a coal ore when mining it but that's pretty edge case and this is a good solution for now
+            dontRewardTE = true;
+        }
 
-                for (int i = 0; i < bonusCount; i++) {
-                    event.getBlock().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+        //If there are more than one block in the item list we can't really trust it and will back out of rewarding bonus drops
+        if(blockCount <= 1) {
+            for(Item item : event.getItems())
+            {
+                ItemStack is = new ItemStack(item.getItemStack());
+
+                if(is.getAmount() <= 0)
+                    continue;
+
+                //TODO: Ignore this abomination its rewritten in 2.2
+                if(!Config.getInstance().getDoubleDropsEnabled(SkillType.MINING, is.getType())
+                        && !Config.getInstance().getDoubleDropsEnabled(SkillType.HERBALISM, is.getType())
+                        && !Config.getInstance().getDoubleDropsEnabled(SkillType.WOODCUTTING, is.getType()))
+                    continue;
+
+                //If we suspect TEs might be duped only reward block
+                if(dontRewardTE) {
+                    if(!is.getType().isBlock()) {
+                        continue;
+                    }
                 }
 
-                event.getBlock().removeMetadata(mcMMO.BONUS_DROPS_METAKEY, plugin);
+                if (event.getBlock().getMetadata(mcMMO.BONUS_DROPS_METAKEY).size() > 0) {
+                    BonusDropMeta bonusDropMeta = (BonusDropMeta) event.getBlock().getMetadata(mcMMO.BONUS_DROPS_METAKEY).get(0);
+                    int bonusCount = bonusDropMeta.asInt();
+
+                    for (int i = 0; i < bonusCount; i++) {
+                        event.getBlock().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
+                    }
+                }
             }
         }
+
+        if(event.getBlock().hasMetadata(mcMMO.BONUS_DROPS_METAKEY))
+            event.getBlock().removeMetadata(mcMMO.BONUS_DROPS_METAKEY, plugin);
     }
-
-/*    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-    public void onBlockDropItemEvent(BlockDropItemEvent event)
-    {
-        for(Item item : event.getItems())
-        {
-            ItemStack is = new ItemStack(item.getItemStack());
-
-            if(!event.getBlock().getDrops().contains(is))
-                continue;
-
-            if(is.getAmount() <= 0)
-                continue;
-
-            if(event.getBlock().getState().getMetadata(mcMMO.doubleDropKey).size() > 0)
-            {
-                //Extra Protection
-                if(event.getBlock().getState() instanceof Container)
-                    return;
-
-                event.getBlock().getState().removeMetadata(mcMMO.doubleDropKey, plugin);
-                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
-            }
-
-            else if(event.getBlock().getState().getMetadata(mcMMO.tripleDropKey).size() > 0)
-            {
-                //Extra Protection
-                if(event.getBlock().getState() instanceof Container)
-                    return;
-                event.getBlock().getState().removeMetadata(mcMMO.tripleDropKey, plugin);
-                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
-                event.getBlock().getState().getWorld().dropItemNaturally(event.getBlockState().getLocation(), is);
-            }
-        }
-    }*/
 
     /**
      * Monitor BlockPistonExtend events.
