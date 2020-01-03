@@ -16,6 +16,7 @@ import com.gmail.nossr50.util.commands.CommandUtils;
 import com.gmail.nossr50.util.player.UserManager;
 import com.gmail.nossr50.util.skills.SkillUtils;
 import com.google.common.collect.ImmutableList;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -145,6 +146,21 @@ public class PtpCommand implements TabExecutor {
         PartyTeleportRecord ptpRecord = mcMMOTarget.getPartyTeleportRecord();
 
         if (!ptpRecord.isConfirmRequired()) {
+            if (Config.getInstance().getPTPCommandWorldPermissions()) {
+                World targetWorld = target.getWorld();
+                World playerWorld = player.getWorld();
+
+                if (!Permissions.partyTeleportAllWorlds(target)) {
+                    if (!Permissions.partyTeleportWorld(target, targetWorld)) {
+                        target.sendMessage(LocaleLoader.getString("Commands.ptp.NoWorldPermissions", targetWorld.getName()));
+                        return;
+                    }
+                    else if (targetWorld != playerWorld && !Permissions.partyTeleportWorld(target, playerWorld)) {
+                        target.sendMessage(LocaleLoader.getString("Commands.ptp.NoWorldPermissions", playerWorld.getName()));
+                        return;
+                    }
+                }
+            }
             handleTeleportWarmup(player, target);
             return;
         }
