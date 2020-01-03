@@ -143,24 +143,25 @@ public class PtpCommand implements TabExecutor {
         McMMOPlayer mcMMOTarget = UserManager.getPlayer(targetName);
         Player target = mcMMOTarget.getPlayer();
 
+        if (Config.getInstance().getPTPCommandWorldPermissions()) {
+            World targetWorld = target.getWorld();
+            World playerWorld = player.getWorld();
+
+            if (!Permissions.partyTeleportAllWorlds(player)) {
+                if (!Permissions.partyTeleportWorld(target, targetWorld)) {
+                    player.sendMessage(LocaleLoader.getString("Commands.ptp.NoWorldPermissions", targetWorld.getName()));
+                    return;
+                }
+                else if (targetWorld != playerWorld && !Permissions.partyTeleportWorld(player, targetWorld)) {
+                    player.sendMessage(LocaleLoader.getString("Commands.ptp.NoWorldPermissions", targetWorld.getName()));
+                    return;
+                }
+            }
+        }
+
         PartyTeleportRecord ptpRecord = mcMMOTarget.getPartyTeleportRecord();
 
         if (!ptpRecord.isConfirmRequired()) {
-            if (Config.getInstance().getPTPCommandWorldPermissions()) {
-                World targetWorld = target.getWorld();
-                World playerWorld = player.getWorld();
-
-                if (!Permissions.partyTeleportAllWorlds(target)) {
-                    if (!Permissions.partyTeleportWorld(target, targetWorld)) {
-                        target.sendMessage(LocaleLoader.getString("Commands.ptp.NoWorldPermissions", targetWorld.getName()));
-                        return;
-                    }
-                    else if (targetWorld != playerWorld && !Permissions.partyTeleportWorld(target, playerWorld)) {
-                        target.sendMessage(LocaleLoader.getString("Commands.ptp.NoWorldPermissions", playerWorld.getName()));
-                        return;
-                    }
-                }
-            }
             handleTeleportWarmup(player, target);
             return;
         }
