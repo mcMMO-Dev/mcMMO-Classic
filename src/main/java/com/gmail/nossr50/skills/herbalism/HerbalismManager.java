@@ -1,5 +1,6 @@
 package com.gmail.nossr50.skills.herbalism;
 
+import com.gmail.nossr50.config.AdvancedConfig;
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
 import com.gmail.nossr50.config.treasure.TreasureConfig;
@@ -266,7 +267,7 @@ public class HerbalismManager extends SkillManager {
      * @param greenTerra boolean to determine if greenTerra is active or not
      */
     private void processGreenThumbPlants(BlockState blockState, boolean greenTerra) {
-        if (!BlockUtils.isFullyGrown(blockState))
+        if (!BlockUtils.isFullyGrown(blockState) && !AdvancedConfig.getInstance().getGreenThumbUngrownCrops())
             return;
 
         Player player = getPlayer();

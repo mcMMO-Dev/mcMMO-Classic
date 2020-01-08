@@ -756,6 +756,8 @@ public class AdvancedConfig extends AutoUpdateConfigLoader {
 
     public int getGreenThumbStageChange() { return config.getInt("Skills.Herbalism.GreenThumb.StageChange", 200); }
 
+    public boolean getGreenThumbUngrownCrops() { return config.getBoolean("Skills.Herbalism.GreenThumb.Ungrown", false); }
+
     /* MINING */
     public int getBlastMiningRankLevel(BlastMining.Tier tier) { return config.getInt("Skills.Mining.BlastMining.Rank_Levels.Rank_" + tier.toNumerical()); }
     public double getBlastDamageDecrease(BlastMining.Tier tier) { return config.getDouble("Skills.Mining.BlastMining.BlastDamageDecrease.Rank_" + tier.toNumerical()); }

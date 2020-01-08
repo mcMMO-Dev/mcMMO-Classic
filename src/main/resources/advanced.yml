@@ -201,9 +201,11 @@ Skills:
             # StageChange: Level value when the GreenThumb stage rank goes up
             # ChanceMax: Maximum chance of GreenThumb when on <MaxBonusLevel> or higher
             # MaxBonusLevel: On this level, GreenThumb chance will be <ChanceMax>
+            # Ungrown: Whether not-fully-grown crops should be replanted with GreenThumb
             StageChange: 200
             ChanceMax: 100.0
             MaxBonusLevel: 1500
+            Ungrown: false
 
         DoubleDrops:
             # ChanceMax: Maximum chance of receiving double drops when on <MaxBonusLevel> or higher
