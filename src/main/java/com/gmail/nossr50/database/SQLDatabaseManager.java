@@ -377,7 +377,7 @@ public final class SQLDatabaseManager implements DatabaseManager {
             for (SkillType skillType : SkillType.NON_CHILD_SKILLS) {
                 String skillName = skillType.name().toLowerCase();
                 // Get count of all users with higher skill level than player
-                String sql = "SELECT COUNT(*) AS rank FROM " + tablePrefix + "users JOIN " + tablePrefix + "skills ON user_id = id WHERE " + skillName + " > 0 " +
+                String sql = "SELECT COUNT(*) AS 'rank' FROM " + tablePrefix + "users JOIN " + tablePrefix + "skills ON user_id = id WHERE " + skillName + " > 0 " +
                         "AND " + skillName + " > (SELECT " + skillName + " FROM " + tablePrefix + "users JOIN " + tablePrefix + "skills ON user_id = id " +
                         "WHERE user = ?)";
 
@@ -411,7 +411,7 @@ public final class SQLDatabaseManager implements DatabaseManager {
                 statement.close();
             }
 
-            String sql = "SELECT COUNT(*) AS rank FROM " + tablePrefix + "users JOIN " + tablePrefix + "skills ON user_id = id " +
+            String sql = "SELECT COUNT(*) AS 'rank' FROM " + tablePrefix + "users JOIN " + tablePrefix + "skills ON user_id = id " +
                     "WHERE " + ALL_QUERY_VERSION + " > 0 " +
                     "AND " + ALL_QUERY_VERSION + " > " +
                     "(SELECT " + ALL_QUERY_VERSION + " " +
