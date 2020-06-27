@@ -262,6 +262,10 @@ public class SkillUtils {
         else if (ItemUtils.isStringTool(inHand)) {
             return Material.STRING;
         }
+        else if (ItemUtils.isNetherriteTool(inHand) || ItemUtils.isNetherriteArmor(inHand))
+        {
+            return Material.getMaterial("NETHERITE_SCRAP");
+        }
         else {
             return null;
         }
@@ -272,6 +276,10 @@ public class SkillUtils {
     }
 
     public static int getRepairAndSalvageQuantities(ItemStack item, Material repairMaterial, byte repairMetadata) {
+        if(mcMMO.getMaterialMapStore().isNetheriteTool(item.getType()) || mcMMO.getMaterialMapStore().isNetheriteArmor(item.getType())) {
+            //One netherite bar requires 4 netherite scraps
+            return 4;
+        }
         // Workaround for Bukkit bug where damaged items would not return any recipes
         item = item.clone();
         item.setDurability((short) 0);

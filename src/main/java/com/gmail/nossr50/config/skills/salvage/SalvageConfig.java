@@ -68,6 +68,8 @@ public class SalvageConfig extends ConfigLoader {
                 }
                 else if (ItemUtils.isDiamondArmor(salvageItem) || ItemUtils.isDiamondTool(salvageItem)) {
                     salvageMaterialType = MaterialType.DIAMOND;
+                } else if (ItemUtils.isNetherriteTool(salvageItem) || ItemUtils.isNetherriteArmor(salvageItem)) {
+                    salvageMaterialType = MaterialType.NETHERRACK;
                 }
             }
             else {

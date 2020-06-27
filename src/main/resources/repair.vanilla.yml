@@ -183,6 +183,38 @@ Repairables:
         MinimumLevel: 50
         XpMultiplier: 6
     #
+    # Netherite repairables
+    ###
+    # Tools
+    NETHERRITE_SWORD:
+        MinimumLevel: 0
+        XpMultiplier: .6
+    NETHERRITE_SHOVEL:
+        MinimumLevel: 0
+        XpMultiplier: .4
+    NETHERRITE_PICKAXE:
+        MinimumLevel: 0
+        XpMultiplier: 1.1
+    NETHERRITE_AXE:
+        MinimumLevel: 0
+        XpMultiplier: 1.1
+    NETHERRITE_HOE:
+        MinimumLevel: 0
+        XpMultiplier: .75
+    # Armor
+    NETHERRITE_HELMET:
+        MinimumLevel: 0
+        XpMultiplier: 7
+    NETHERRITE_CHESTPLATE:
+        MinimumLevel: 0
+        XpMultiplier: 7
+    NETHERRITE_LEGGINGS:
+        MinimumLevel: 0
+        XpMultiplier: 7
+    NETHERRITE_BOOTS:
+        MinimumLevel: 0
+        XpMultiplier: 7
+    #
     # Leather repairables
     ###
     # Armor
@@ -206,6 +238,9 @@ Repairables:
         MinimumLevel: 0
         XpMultiplier: .5
     BOW:
+        MinimumLevel: 0
+        XpMultiplier: .5
+    CROSSBOW:
         MinimumLevel: 0
         XpMultiplier: .5
     CARROT_ON_A_STICK:

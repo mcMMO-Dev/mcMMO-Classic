@@ -104,6 +104,10 @@ public class ModManager {
         return Config.getInstance().getArmorModsEnabled() && customLeggings.contains(material);
     }
 
+    public boolean isCustomArmor(Material material){
+        return Config.getInstance().getArmorModsEnabled() && (customBoots.contains(material) || customChestplates.contains(material) || customHelmets.contains(material) || customLeggings.contains(material));
+    }
+
     public boolean isCustomAxe(Material material) {
         return Config.getInstance().getToolModsEnabled() && customAxes.contains(material);
     }

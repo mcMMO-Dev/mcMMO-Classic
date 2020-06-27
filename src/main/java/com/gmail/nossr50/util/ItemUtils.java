@@ -22,14 +22,7 @@ public final class ItemUtils {
      */
     public static boolean isBow(ItemStack item) {
         Material type = item.getType();
-
-        switch (type) {
-            case BOW:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomBow(type);
-        }
+        return mcMMO.getMaterialMapStore().isBow(type) || mcMMO.getModManager().isCustomBow(type);
     }
 
     /**
@@ -40,18 +33,7 @@ public final class ItemUtils {
      */
     public static boolean isSword(ItemStack item) {
         Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_SWORD:
-            case GOLDEN_SWORD:
-            case IRON_SWORD:
-            case STONE_SWORD:
-            case WOODEN_SWORD:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomSword(type);
-        }
+        return mcMMO.getMaterialMapStore().isSword(type) || mcMMO.getModManager().isCustomSword(type);
     }
 
     /**
@@ -62,18 +44,7 @@ public final class ItemUtils {
      */
     public static boolean isHoe(ItemStack item) {
         Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_HOE:
-            case GOLDEN_HOE:
-            case IRON_HOE:
-            case STONE_HOE:
-            case WOODEN_HOE:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomHoe(type);
-        }
+        return mcMMO.getMaterialMapStore().isHoe(type) || mcMMO.getModManager().isCustomHoe(type);
     }
 
     /**
@@ -84,18 +55,7 @@ public final class ItemUtils {
      */
     public static boolean isShovel(ItemStack item) {
         Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_SHOVEL:
-            case GOLDEN_SHOVEL:
-            case IRON_SHOVEL:
-            case STONE_SHOVEL:
-            case WOODEN_SHOVEL:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomShovel(type);
-        }
+        return mcMMO.getMaterialMapStore().isShovel(type) || mcMMO.getModManager().isCustomShovel(type);
     }
 
     /**
@@ -106,18 +66,7 @@ public final class ItemUtils {
      */
     public static boolean isAxe(ItemStack item) {
         Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_AXE:
-            case GOLDEN_AXE:
-            case IRON_AXE:
-            case STONE_AXE:
-            case WOODEN_AXE:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomAxe(type);
-        }
+        return mcMMO.getMaterialMapStore().isAxe(type) || mcMMO.getModManager().isCustomAxe(type);
     }
 
     /**
@@ -128,18 +77,7 @@ public final class ItemUtils {
      */
     public static boolean isPickaxe(ItemStack item) {
         Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_PICKAXE:
-            case GOLDEN_PICKAXE:
-            case IRON_PICKAXE:
-            case STONE_PICKAXE:
-            case WOODEN_PICKAXE:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomPickaxe(type);
-        }
+        return mcMMO.getMaterialMapStore().isPickAxe(type) || mcMMO.getModManager().isCustomPickaxe(type);
     }
 
     /**
@@ -157,111 +95,14 @@ public final class ItemUtils {
     }
 
     /**
-     * Checks if the item is a helmet.
-     *
-     * @param item Item to check
-     * @return true if the item is a helmet, false otherwise
-     */
-    public static boolean isHelmet(ItemStack item) {
-        Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_HELMET:
-            case GOLDEN_HELMET:
-            case IRON_HELMET:
-            case CHAINMAIL_HELMET:
-            case LEATHER_HELMET:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomHelmet(type);
-        }
-    }
-
-    /**
-     * Checks if the item is a chestplate.
-     *
-     * @param item Item to check
-     * @return true if the item is a chestplate, false otherwise
-     */
-    public static boolean isChestplate(ItemStack item) {
-        Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_CHESTPLATE:
-            case GOLDEN_CHESTPLATE:
-            case IRON_CHESTPLATE:
-            case CHAINMAIL_CHESTPLATE:
-            case LEATHER_CHESTPLATE:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomChestplate(type);
-        }
-    }
-
-    /**
-     * Checks if the item is a pair of pants.
-     *
-     * @param item Item to check
-     * @return true if the item is a pair of pants, false otherwise
-     */
-    public static boolean isLeggings(ItemStack item) {
-        Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_LEGGINGS:
-            case GOLDEN_LEGGINGS:
-            case IRON_LEGGINGS:
-            case CHAINMAIL_LEGGINGS:
-            case LEATHER_LEGGINGS:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomLeggings(type);
-        }
-    }
-
-    /**
-     * Checks if the item is a pair of boots.
-     *
-     * @param item Item to check
-     * @return true if the item is a pair of boots, false otherwise
-     */
-    public static boolean isBoots(ItemStack item) {
-        Material type = item.getType();
-
-        switch (type) {
-            case DIAMOND_BOOTS:
-            case GOLDEN_BOOTS:
-            case IRON_BOOTS:
-            case CHAINMAIL_BOOTS:
-            case LEATHER_BOOTS:
-                return true;
-
-            default:
-                return mcMMO.getModManager().isCustomBoots(type);
-        }
-    }
-
-    /**
      * Checks to see if an item is a wearable armor piece.
      *
      * @param item Item to check
      * @return true if the item is armor, false otherwise
      */
     public static boolean isArmor(ItemStack item) {
-        return isHelmet(item) || isChestplate(item) || isLeggings(item) || isBoots(item);
-    }
-
-    /**
-     * Checks to see if an item is a wearable *vanilla* armor piece.
-     *
-     * @param item Item to check
-     * @return true if the item is armor, false otherwise
-     */
-    public static boolean isMinecraftArmor(ItemStack item) {
-        return isLeatherArmor(item) || isGoldArmor(item) || isIronArmor(item) || isDiamondArmor(item) || isChainmailArmor(item);
+        Material type = item.getType();
+        return mcMMO.getMaterialMapStore().isArmor(type) || mcMMO.getModManager().isCustomArmor(type);
     }
 
     /**
@@ -271,16 +112,7 @@ public final class ItemUtils {
      * @return true if the item is leather armor, false otherwise
      */
     public static boolean isLeatherArmor(ItemStack item) {
-        switch (item.getType()) {
-            case LEATHER_BOOTS:
-            case LEATHER_CHESTPLATE:
-            case LEATHER_HELMET:
-            case LEATHER_LEGGINGS:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isLeatherArmor(item.getType());
     }
 
     /**
@@ -290,16 +122,7 @@ public final class ItemUtils {
      * @return true if the item is gold armor, false otherwise
      */
     public static boolean isGoldArmor(ItemStack item) {
-        switch (item.getType()) {
-            case GOLDEN_BOOTS:
-            case GOLDEN_CHESTPLATE:
-            case GOLDEN_HELMET:
-            case GOLDEN_LEGGINGS:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isGoldArmor(item.getType());
     }
 
     /**
@@ -309,16 +132,7 @@ public final class ItemUtils {
      * @return true if the item is iron armor, false otherwise
      */
     public static boolean isIronArmor(ItemStack item) {
-        switch (item.getType()) {
-            case IRON_BOOTS:
-            case IRON_CHESTPLATE:
-            case IRON_HELMET:
-            case IRON_LEGGINGS:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isIronArmor(item.getType());
     }
 
     /**
@@ -328,16 +142,11 @@ public final class ItemUtils {
      * @return true if the item is diamond armor, false otherwise
      */
     public static boolean isDiamondArmor(ItemStack item) {
-        switch (item.getType()) {
-            case DIAMOND_BOOTS:
-            case DIAMOND_CHESTPLATE:
-            case DIAMOND_HELMET:
-            case DIAMOND_LEGGINGS:
-                return true;
+        return mcMMO.getMaterialMapStore().isDiamondArmor(item.getType());
+    }
 
-            default:
-                return false;
-        }
+    public static boolean isNetherriteArmor(ItemStack item) {
+        return mcMMO.getMaterialMapStore().isNetheriteArmor(item.getType());
     }
 
     /**
@@ -347,16 +156,7 @@ public final class ItemUtils {
      * @return true if the item is chainmail armor, false otherwise
      */
     public static boolean isChainmailArmor(ItemStack item) {
-        switch (item.getType()) {
-            case CHAINMAIL_BOOTS:
-            case CHAINMAIL_CHESTPLATE:
-            case CHAINMAIL_HELMET:
-            case CHAINMAIL_LEGGINGS:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isChainmailArmor(item.getType());
     }
 
     /**
@@ -366,7 +166,7 @@ public final class ItemUtils {
      * @return true if the item is a tool, false otherwise
      */
     public static boolean isMinecraftTool(ItemStack item) {
-        return isStoneTool(item) || isWoodTool(item) || isGoldTool(item) || isIronTool(item) || isDiamondTool(item) || isStringTool(item) || item.getType() == Material.TRIDENT;
+        return mcMMO.getMaterialMapStore().isTool(item.getType());
     }
 
     /**
@@ -376,17 +176,7 @@ public final class ItemUtils {
      * @return true if the item is a stone tool, false otherwise
      */
     public static boolean isStoneTool(ItemStack item) {
-        switch (item.getType()) {
-            case STONE_AXE:
-            case STONE_HOE:
-            case STONE_PICKAXE:
-            case STONE_SHOVEL:
-            case STONE_SWORD:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isStoneTool(item.getType());
     }
 
     /**
@@ -396,17 +186,7 @@ public final class ItemUtils {
      * @return true if the item is a wooden tool, false otherwise
      */
     public static boolean isWoodTool(ItemStack item) {
-        switch (item.getType()) {
-            case WOODEN_AXE:
-            case WOODEN_HOE:
-            case WOODEN_PICKAXE:
-            case WOODEN_SHOVEL:
-            case WOODEN_SWORD:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isWoodTool(item.getType());
     }
 
     /**
@@ -416,15 +196,7 @@ public final class ItemUtils {
      * @return true if the item is a string tool, false otherwise
      */
     public static boolean isStringTool(ItemStack item) {
-        switch (item.getType()) {
-            case BOW:
-            case CARROT_ON_A_STICK:
-            case FISHING_ROD:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isStringTool(item.getType());
     }
 
     /**
@@ -434,17 +206,7 @@ public final class ItemUtils {
      * @return true if the item is a stone tool, false otherwise
      */
     public static boolean isGoldTool(ItemStack item) {
-        switch (item.getType()) {
-            case GOLDEN_AXE:
-            case GOLDEN_HOE:
-            case GOLDEN_PICKAXE:
-            case GOLDEN_SHOVEL:
-            case GOLDEN_SWORD:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isGoldTool(item.getType());
     }
 
     /**
@@ -454,20 +216,7 @@ public final class ItemUtils {
      * @return true if the item is an iron tool, false otherwise
      */
     public static boolean isIronTool(ItemStack item) {
-        switch (item.getType()) {
-            case BUCKET:
-            case FLINT_AND_STEEL:
-            case IRON_AXE:
-            case IRON_HOE:
-            case IRON_PICKAXE:
-            case IRON_SHOVEL:
-            case IRON_SWORD:
-            case SHEARS:
-                return true;
-
-            default:
-                return false;
-        }
+        return mcMMO.getMaterialMapStore().isIronTool(item.getType());
     }
 
     /**
@@ -477,17 +226,11 @@ public final class ItemUtils {
      * @return true if the item is a diamond tool, false otherwise
      */
     public static boolean isDiamondTool(ItemStack item) {
-        switch (item.getType()) {
-            case DIAMOND_AXE:
-            case DIAMOND_HOE:
-            case DIAMOND_PICKAXE:
-            case DIAMOND_SHOVEL:
-            case DIAMOND_SWORD:
-                return true;
+        return mcMMO.getMaterialMapStore().isDiamondTool(item.getType());
+    }
 
-            default:
-                return false;
-        }
+    public static boolean isNetherriteTool(ItemStack item) {
+        return mcMMO.getMaterialMapStore().isNetheriteTool(item.getType());
     }
 
     /**
@@ -497,18 +240,7 @@ public final class ItemUtils {
      * @return true if the item is enchantable, false otherwise
      */
     public static boolean isEnchantable(ItemStack item) {
-        switch (item.getType()) {
-            case ENCHANTED_BOOK:
-            case SHEARS:
-            case FISHING_ROD:
-            case CARROT_ON_A_STICK:
-            case FLINT_AND_STEEL:
-            case TRIDENT:
-                return true;
-
-            default:
-                return isArmor(item) || isSword(item) || isAxe(item) || isShovel(item) || isPickaxe(item) || isBow(item);
-        }
+        return mcMMO.getMaterialMapStore().isEnchantable(item.getType());
     }
 
     public static boolean isSmeltable(ItemStack item) {

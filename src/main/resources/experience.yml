@@ -142,7 +142,15 @@ Experience:
         Snow: 20
         Snow_Block: 40
         Soul_Sand: 40
+        Soul_Soil: 40
     Woodcutting:
+        Nether_Wart_Block: 20
+        Warped_Wart_Block: 20
+        Shroomlight: 100
+        Crimson_Stem: 35
+        Warped_Stem: 35
+        Crimson_Roots: 35
+        Warped_Roots: 35
         Oak_Log: 70
         Spruce_Log: 80
         Birch_Log: 90
@@ -171,6 +179,12 @@ Experience:
         Brown_Mushroom_Block: 70
         Mushroom_Stem: 80
     Herbalism:
+        Nether_Wart_Block: 20
+        Warped_Wart_Block: 20
+        Nether_Sprouts: 10
+        Crimson_Fungus: 50
+        Warped_Fungus: 50
+        Shroomlight: 250
         Bee_Nest: 100
         Sweet_Berry_Bush: 300
         Seagrass: 10
@@ -239,6 +253,7 @@ Experience:
         Tall_Grass: 50
         Large_Fern: 50
         Vine: 10
+        Weeping_Vines: 10
         Lily_Pad: 100
         White_Tulip: 150
         Dandelion: 100
@@ -247,6 +262,15 @@ Experience:
         Lily_of_the_valley: 150
         Wither_rose: 500
     Mining:
+        Bone_Block: 500
+        Crying_Obsidian: 3000
+        Chain: 100
+        Blackstone: 55
+        Warped_Nylium: 5
+        Crimson_Nylium: 5
+        Ancient_Debris: 7777
+        Magma_Block: 30
+        Basalt: 40
         Tube_Coral_Block: 75
         Brain_Coral_Block: 80
         Bubble_Coral_Block: 70
@@ -315,6 +339,7 @@ Experience:
         String: 1.8
         Other: 1.5
     Smelting:
+        Ancient_Debris: 200
         Coal_Ore: 10
         Diamond_Ore: 75
         Emerald_Ore: 100
@@ -400,3 +425,9 @@ Experience:
             Trader_Llama: 1.0
             Wandering_trader: 1.0
             Bee: 1.0
+            Piglin: 2.0
+            Hoglin: 4.0
+            Zombie_Pigman: 3.0
+            Zombified_Piglin: 3.0
+            Strider: 1.2
+            Zoglin: 2.5

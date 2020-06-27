@@ -412,6 +412,9 @@ Skills:
 ###
 Bonus_Drops:
     Herbalism:
+        Bamboo_Sapling: true
+        Crimson_Fungus: true
+        Warped_Fungus: true
         Beetroots: true
         Beetroot: true
         Brown_Mushroom: true
@@ -446,6 +449,10 @@ Bonus_Drops:
         Rose_Bush: true
         Peony: true
     Mining:
+        Warped_Nylium: true
+        Crimson_Nylium: true
+        Ancient_Debris: true
+        Netherite_Scrap: true
         Andesite: true
         Diorite: true
         Granite: true
@@ -474,6 +481,11 @@ Bonus_Drops:
         Stone: true
         Cobblestone: true
     Woodcutting:
+        Shroomlight: true
+        Crimson_Stem: true
+        Warped_Stem: true
+        Crimson_Roots: true
+        Warped_Roots: true
         Acacia_Wood: true
         Acacia_Log: true
         Birch_Wood: true
