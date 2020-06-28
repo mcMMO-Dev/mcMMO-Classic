@@ -262,7 +262,7 @@ public class SkillUtils {
         else if (ItemUtils.isStringTool(inHand)) {
             return Material.STRING;
         }
-        else if (ItemUtils.isNetherriteTool(inHand) || ItemUtils.isNetherriteArmor(inHand))
+        else if (ItemUtils.isNetheriteTool(inHand) || ItemUtils.isNetheriteArmor(inHand))
         {
             return Material.getMaterial("NETHERITE_SCRAP");
         }

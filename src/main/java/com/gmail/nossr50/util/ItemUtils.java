@@ -145,7 +145,7 @@ public final class ItemUtils {
         return mcMMO.getMaterialMapStore().isDiamondArmor(item.getType());
     }
 
-    public static boolean isNetherriteArmor(ItemStack item) {
+    public static boolean isNetheriteArmor(ItemStack item) {
         return mcMMO.getMaterialMapStore().isNetheriteArmor(item.getType());
     }
 
@@ -229,7 +229,7 @@ public final class ItemUtils {
         return mcMMO.getMaterialMapStore().isDiamondTool(item.getType());
     }
 
-    public static boolean isNetherriteTool(ItemStack item) {
+    public static boolean isNetheriteTool(ItemStack item) {
         return mcMMO.getMaterialMapStore().isNetheriteTool(item.getType());
     }
 
