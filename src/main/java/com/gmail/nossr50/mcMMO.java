@@ -120,6 +120,7 @@ public class mcMMO extends JavaPlugin {
      */
     @Override
     public void onEnable() {
+        materialMapStore = new MaterialMapStore();
         try {
             p = this;
             getLogger().setFilter(new LogFilter(this));
@@ -190,8 +191,6 @@ public class mcMMO extends JavaPlugin {
 
             getServer().getPluginManager().disablePlugin(this);
         }
-
-        materialMapStore = new MaterialMapStore();
     }
 
     public static MaterialMapStore getMaterialMapStore() {
