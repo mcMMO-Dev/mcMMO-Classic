@@ -416,10 +416,12 @@ public class MaterialMapStore {
 
     private void fillBows() {
         bows.add("bow");
+        bows.add("crossbow");
     }
 
     private void fillStringTools() {
         stringTools.add("bow");
+        stringTools.add("crossbow");
         stringTools.add("fishing_rod");
         stringTools.add("carrot_on_a_stick");
     }

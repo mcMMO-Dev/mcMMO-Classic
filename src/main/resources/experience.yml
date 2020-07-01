@@ -280,7 +280,10 @@ Experience:
         Diamond_Ore: 750
         Emerald_Ore: 1000
         End_Bricks: 200
-        Nether_Brick: 50
+        Chiseled_Nether_Bricks: 50
+        Cracked_Nether_Bricks: 50
+        Nether_Bricks: 50
+        Red_Nether_Bricks: 50
         End_Stone: 150
         Glowstone: 30
         Gold_Ore: 350
@@ -426,6 +429,7 @@ Experience:
             Wandering_trader: 1.0
             Bee: 1.0
             Piglin: 2.0
+            Piglin_Brute: 4.5
             Hoglin: 4.0
             Zombie_Pigman: 3.0
             Zombified_Piglin: 3.0

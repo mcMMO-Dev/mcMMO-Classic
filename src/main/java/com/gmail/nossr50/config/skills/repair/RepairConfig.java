@@ -74,6 +74,9 @@ public class RepairConfig extends ConfigLoader {
                 else if (ItemUtils.isDiamondArmor(repairItem) || ItemUtils.isDiamondTool(repairItem)) {
                     repairMaterialType = MaterialType.DIAMOND;
                 }
+                else if (ItemUtils.isNetheriteArmor(repairItem) || ItemUtils.isNetheriteTool(repairItem)) {
+                    repairMaterialType = MaterialType.NETHERRACK;
+                }
             }
             else {
                 try {
