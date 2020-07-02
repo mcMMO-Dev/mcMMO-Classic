@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 public class UUIDFetcher implements Callable<Map<String, UUID>> {
-    private static final int PROFILES_PER_REQUEST = 50;
+    private static final int PROFILES_PER_REQUEST = 10;
     private static final long RATE_LIMIT = 100L;
     private static final String PROFILE_URL = "https://api.mojang.com/profiles/minecraft";
     private final List<String> names;
@@ -49,14 +49,18 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
             String body = array.toString();
 
             writeBody(connection, body);
-            JsonObject[] jsonStreamArray = gson.fromJson(new InputStreamReader(connection.getInputStream()), JsonObject[].class);
+            try (InputStreamReader reader = new InputStreamReader(connection.getInputStream()))
+            {
+                JsonObject[] jsonStreamArray = gson.fromJson(reader, JsonObject[].class);
 
-            for (JsonObject jsonProfile : jsonStreamArray) {
-                String id = jsonProfile.get("id").getAsString();
-                String name = jsonProfile.get("name").getAsString();
-                UUID uuid = UUIDFetcher.getUUID(id);
-                uuidMap.put(name, uuid);
+                for (JsonObject jsonProfile : jsonStreamArray) {
+                    String id = jsonProfile.get("id").getAsString();
+                    String name = jsonProfile.get("name").getAsString();
+                    UUID uuid = UUIDFetcher.getUUID(id);
+                    uuidMap.put(name, uuid);
+                }
             }
+
             if (rateLimiting && i != requests - 1) {
                 Thread.sleep(RATE_LIMIT);
             }
