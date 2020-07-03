@@ -14,6 +14,7 @@ import com.gmail.nossr50.runnables.skills.HerbalismBlockUpdaterTask;
 import com.gmail.nossr50.skills.SkillManager;
 import com.gmail.nossr50.util.*;
 import com.gmail.nossr50.util.skills.SkillUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -112,7 +113,7 @@ public class HerbalismManager extends SkillManager {
         boolean oneBlockPlant = isOneBlockPlant(material);
 
         // Prevents placing and immediately breaking blocks for exp
-        if (oneBlockPlant && mcMMO.getPlaceStore().isTrue(blockState)) {
+        if (oneBlockPlant && mcMMO.getPlaceStore().isTrue(blockState) || (material == Material.LILY_PAD && Bukkit.getVersion().contains("1.16.1"))) { // Temporarily disable lilypads because of spigot 1.16 bug
             return;
         }
 
