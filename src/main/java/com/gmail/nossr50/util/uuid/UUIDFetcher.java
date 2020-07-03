@@ -15,19 +15,13 @@ import java.util.*;
 import java.util.concurrent.Callable;
 
 public class UUIDFetcher implements Callable<Map<String, UUID>> {
-    private static final int PROFILES_PER_REQUEST = 10;
-    private static final long RATE_LIMIT = 100L;
+    private static final int PROFILES_PER_REQUEST = 599; //Request exactly under 600 to not piss off Mojang
+    private static final long RATE_LIMIT = (1000 * 60) * 11; //Sleep 11 minutes
     private static final String PROFILE_URL = "https://api.mojang.com/profiles/minecraft";
     private final List<String> names;
-    private final boolean rateLimiting;
-
-    public UUIDFetcher(List<String> names, boolean rateLimiting) {
-        this.names = ImmutableList.copyOf(names);
-        this.rateLimiting = rateLimiting;
-    }
 
     public UUIDFetcher(List<String> names) {
-        this(names, true);
+        this.names = ImmutableList.copyOf(names);
     }
 
     public Map<String, UUID> call() throws Exception {
@@ -61,7 +55,7 @@ public class UUIDFetcher implements Callable<Map<String, UUID>> {
                 }
             }
 
-            if (rateLimiting && i != requests - 1) {
+            if (i != requests - 1) {
                 Thread.sleep(RATE_LIMIT);
             }
         }
