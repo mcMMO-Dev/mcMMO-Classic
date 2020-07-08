@@ -2,7 +2,8 @@ package com.gmail.nossr50.util;
 
 import org.bukkit.Material;
 
-import java.util.HashSet;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Stores hash tables for item and block names
@@ -899,5 +900,14 @@ public class MaterialMapStore {
     private void addToHashSet(String string, HashSet<String> stringHashSet)
     {
         stringHashSet.add(string.toLowerCase());
+    }
+
+    public List<Material> getPickaxeMaterials() {
+        return toMaterials(pickAxes);
+    }
+
+    private List<Material> toMaterials(Collection<String> keys)
+    {
+        return keys.stream().map(Material::getMaterial).filter(Objects::nonNull).collect(Collectors.toList());
     }
 }

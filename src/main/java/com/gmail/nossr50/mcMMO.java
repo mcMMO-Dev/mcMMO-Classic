@@ -436,11 +436,8 @@ public class mcMMO extends JavaPlugin {
             }
 
             if (Config.getInstance().getFluxPickaxeEnabled()) {
-                getServer().addRecipe(SmeltingManager.getFluxPickaxeRecipe(Material.DIAMOND_PICKAXE));
-                getServer().addRecipe(SmeltingManager.getFluxPickaxeRecipe(Material.GOLDEN_PICKAXE));
-                getServer().addRecipe(SmeltingManager.getFluxPickaxeRecipe(Material.IRON_PICKAXE));
-                getServer().addRecipe(SmeltingManager.getFluxPickaxeRecipe(Material.STONE_PICKAXE));
-                getServer().addRecipe(SmeltingManager.getFluxPickaxeRecipe(Material.WOODEN_PICKAXE));
+                for (Material pickaxe : materialMapStore.getPickaxeMaterials())
+                    getServer().addRecipe(SmeltingManager.getFluxPickaxeRecipe(pickaxe));
             }
         }, 40);
     }
