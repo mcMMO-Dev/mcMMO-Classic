@@ -344,6 +344,7 @@ public class MaterialMapStore {
         ores.add("gold_ore");
         ores.add("iron_ore");
         ores.add("lapis_ore");
+        ores.add("nether_gold_ore");
         ores.add("redstone_ore");
         ores.add("emerald_ore");
         ores.add("ancient_debris");
