@@ -2,18 +2,22 @@ package com.gmail.nossr50.util;
 
 import com.gmail.nossr50.config.Config;
 import com.gmail.nossr50.config.experience.ExperienceConfig;
+#if MC_1_14_PLUS
 import com.gmail.nossr50.datatypes.meta.BonusDropMeta;
+#endif
 import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
 import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.skills.repair.Repair;
-import com.gmail.nossr50.skills.salvage.Salvage;
 import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+#if MC_1_13
+import org.bukkit.inventory.ItemStack;
+import java.util.Collection;
+#endif
 
 import java.util.HashSet;
 
@@ -28,10 +32,7 @@ public final class BlockUtils {
      * @param triple     marks the block to give triple drops
      */
     public static void markDropsAsBonus(BlockState blockState, boolean triple) {
-        if (triple)
-            blockState.setMetadata(mcMMO.BONUS_DROPS_METAKEY, new BonusDropMeta(2, mcMMO.p));
-        else
-            blockState.setMetadata(mcMMO.BONUS_DROPS_METAKEY, new BonusDropMeta(1, mcMMO.p));
+        markDropsAsBonus(blockState, triple ? 2 : 1);
     }
 
     /**
@@ -40,7 +41,16 @@ public final class BlockUtils {
      * @param amount amount of extra items to drop
      */
     public static void markDropsAsBonus(BlockState blockState, int amount) {
+#if MC_1_14_PLUS
         blockState.setMetadata(mcMMO.BONUS_DROPS_METAKEY, new BonusDropMeta(amount, mcMMO.p));
+#elif MC_1_13
+        Collection<ItemStack> drops = blockState.getBlock().getDrops();
+        for (int i = 0; i < amount; i++) {
+            for (ItemStack item : drops) {
+                Misc.dropItems(Misc.getBlockCenter(blockState), item, amount);
+            }
+        }
+#endif
     }
 
     /**
@@ -224,19 +234,6 @@ public final class BlockUtils {
         return mcMMO.getMaterialMapStore().isShroomyWhiteListed(blockState.getType());
     }
 
-    /**
-     * Determine if a given block is an mcMMO anvil
-     *
-     * @param blockState
-     *            The {@link BlockState} of the block to check
-     * @return true if the block is an mcMMO anvil, false otherwise
-     */
-    public static boolean isMcMMOAnvil(BlockState blockState) {
-        Material type = blockState.getType();
-
-        return type == Repair.anvilMaterial || type == Salvage.anvilMaterial;
-    }
-
     public static boolean isPistonPiece(BlockState blockState) {
         Material type = blockState.getType();
 
@@ -249,7 +246,7 @@ public final class BlockUtils {
      * @return HashSet with the IDs of every transparent block
      */
     public static HashSet<Material> getTransparentBlocks() {
-        HashSet<Material> transparentBlocks = new HashSet<Material>();
+        HashSet<Material> transparentBlocks = new HashSet<>();
 
         for (Material material : Material.values()) {
             if (material.isTransparent()) {
@@ -262,8 +259,6 @@ public final class BlockUtils {
 
     public static boolean isFullyGrown(BlockState blockState) {
         BlockData data = blockState.getBlockData();
-        if (data.getMaterial() == Material.CACTUS || data.getMaterial() == Material.SUGAR_CANE)
-            return true;
         if (data instanceof Ageable)
         {
             Ageable ageable = (Ageable) data;

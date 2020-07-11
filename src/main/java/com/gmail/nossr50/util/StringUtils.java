@@ -33,10 +33,6 @@ public class StringUtils {
     public static String getPrettyAbilityString(AbilityType ability) {
         return createPrettyEnumString(ability.toString());
     }
-
-    public static String getPrettyTreeSpeciesString(TreeSpecies species) {
-        return createPrettyEnumString(species.toString());
-    }
     
     public static String getWildcardConfigBlockDataString(BlockData data) {
         return getWildcardConfigMaterialString(data.getMaterial());
@@ -47,22 +43,12 @@ public class StringUtils {
     }
 
     public static String getFriendlyConfigBlockDataString(BlockData data) {
-        switch(data.getMaterial()){
-            case CHORUS_FLOWER:
-            case COCOA:
-            case WHEAT:
-            case BEETROOTS:
-            case CARROTS:
-            case POTATOES:
-            case NETHER_WART: {
-                if (data instanceof Ageable) {
-                    Ageable ageData = (Ageable) data;
-                    if (ageData.getAge() == ageData.getMaximumAge()) {
-                        return getPrettyItemString(data.getMaterial()).replace(" ", "_") + "_Ripe";
-                    }
-                }
-                return getPrettyItemString(data.getMaterial()).replace(" ", "_") + "_Ungrown";
+        if (data instanceof Ageable) {
+            Ageable ageData = (Ageable) data;
+            if (ageData.getAge() == ageData.getMaximumAge()) {
+                return getPrettyItemString(data.getMaterial()).replace(" ", "_") + "_Ripe";
             }
+            return getPrettyItemString(data.getMaterial()).replace(" ", "_") + "_Ungrown";
         }
         return getPrettyItemString(data.getMaterial()).replace(" ", "_");
     }

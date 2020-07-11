@@ -49,6 +49,7 @@ public class EntityListener implements Listener {
         this.plugin = plugin;
     }
 
+#if MC_1_14_PLUS
     @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityTransform(EntityTransformEvent event)
     {
@@ -61,6 +62,7 @@ public class EntityListener implements Listener {
             }
         }
     }
+#endif
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityShootBow(EntityShootBowEvent event) {

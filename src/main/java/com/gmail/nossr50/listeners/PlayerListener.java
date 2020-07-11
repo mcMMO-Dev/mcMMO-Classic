@@ -250,21 +250,18 @@ public class PlayerListener implements Listener {
         FishingManager fishingManager = UserManager.getPlayer(player).getFishingManager();
         Entity caught = event.getCaught();
 
+#if MC_1_14_PLUS
         //Fishing Exploit Prevention
-        if(ExperienceConfig.getInstance().isFishingExploitingPrevented())
-        {
-            if(event.getHook().getMetadata(mcMMO.FISH_HOOK_REF_METAKEY).size() == 0)
-            {
+        if (ExperienceConfig.getInstance().isFishingExploitingPrevented()) {
+            if (event.getHook().getMetadata(mcMMO.FISH_HOOK_REF_METAKEY).size() == 0) {
                 fishingManager.setFishHookReference(event.getHook());
             }
 
             //Spam Fishing
-            if(event.getState() == PlayerFishEvent.State.CAUGHT_FISH && fishingManager.isFishingTooOften())
-            {
+            if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH && fishingManager.isFishingTooOften()) {
                 event.setExpToDrop(0);
 
-                if(caught instanceof Item)
-                {
+                if (caught instanceof Item) {
                     Item caughtItem = (Item) caught;
                     caughtItem.remove();
                 }
@@ -272,6 +269,7 @@ public class PlayerListener implements Listener {
                 return;
             }
         }
+#endif
 
         switch (event.getState()) {
             case FISHING:
@@ -281,6 +279,7 @@ public class PlayerListener implements Listener {
                 return;
 
             case CAUGHT_FISH:
+#if MC_1_14_PLUS
                 if(ExperienceConfig.getInstance().isFishingExploitingPrevented())
                 {
                     if(fishingManager.isExploitingFishing(event.getHook().getLocation().toVector()))
@@ -292,6 +291,7 @@ public class PlayerListener implements Listener {
                         return;
                     }
                 }
+#endif
                 fishingManager.handleFishing((Item) caught);
                 return;
 
@@ -444,13 +444,11 @@ public class PlayerListener implements Listener {
         Block block = event.getClickedBlock();
         ItemStack heldItem = player.getInventory().getItemInMainHand();
 
+#if MC_1_14_PLUS
         //Spam Fishing Detection
-        if(event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)
-        {
-            if(heldItem.getType() == Material.FISHING_ROD || player.getInventory().getItemInOffHand().getType() == Material.FISHING_ROD)
-            {
-                if(player.isInsideVehicle() && (player.getVehicle() instanceof Minecart || player.getVehicle() instanceof PoweredMinecart))
-                {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) {
+            if (heldItem.getType() == Material.FISHING_ROD || player.getInventory().getItemInOffHand().getType() == Material.FISHING_ROD) {
+                if (player.isInsideVehicle() && (player.getVehicle() instanceof Minecart || player.getVehicle() instanceof PoweredMinecart)) {
                     player.getVehicle().eject();
                     player.setVelocity(player.getEyeLocation().getDirection().multiply(10));
                 }
@@ -458,6 +456,7 @@ public class PlayerListener implements Listener {
                 mcMMOPlayer.getFishingManager().setFishingRodCastTimestamp();
             }
         }
+#endif
 
         switch (event.getAction()) {
             case RIGHT_CLICK_BLOCK:
@@ -492,8 +491,7 @@ public class PlayerListener implements Listener {
                 else if (miningManager.canDetonate()) {
                     if (type == Material.TNT) {
                         event.setCancelled(true); // Don't detonate the TNT if they're too close
-                    }
-                    else {
+                    } else {
                         miningManager.remoteDetonation();
                     }
                 }
@@ -551,10 +549,10 @@ public class PlayerListener implements Listener {
 
         switch (event.getAction()) {
             case RIGHT_CLICK_BLOCK:
-                if(player.getInventory().getItemInOffHand().getType() != Material.AIR && !player.isInsideVehicle() && !player.isSneaking()) {
+                if (player.getInventory().getItemInOffHand().getType() != Material.AIR && !player.isInsideVehicle() && !player.isSneaking()) {
                     break;
                 }
-                
+
                 Block block = event.getClickedBlock();
                 BlockState blockState = block.getState();
 
@@ -609,10 +607,10 @@ public class PlayerListener implements Listener {
                 break;
 
             case RIGHT_CLICK_AIR:
-                if(player.getInventory().getItemInOffHand().getType() != Material.AIR && !player.isInsideVehicle() && !player.isSneaking()) {
+                if (player.getInventory().getItemInOffHand().getType() != Material.AIR && !player.isInsideVehicle() && !player.isSneaking()) {
                     break;
                 }
-                
+
                 /* ACTIVATION CHECKS */
                 if (Config.getInstance().getAbilitiesEnabled()) {
                     mcMMOPlayer.processAbilityActivation(SkillType.AXES);
@@ -648,11 +646,9 @@ public class PlayerListener implements Listener {
 
                 if (type == Config.getInstance().getTamingCOTWMaterial(EntityType.WOLF)) {
                     tamingManager.summonWolf();
-                }
-                else if (type == Config.getInstance().getTamingCOTWMaterial(EntityType.OCELOT)) {
+                } else if (type == Config.getInstance().getTamingCOTWMaterial(EntityType.OCELOT)) {
                     tamingManager.summonOcelot();
-                }
-                else if (type == Config.getInstance().getTamingCOTWMaterial(EntityType.HORSE)) {
+                } else if (type == Config.getInstance().getTamingCOTWMaterial(EntityType.HORSE)) {
                     tamingManager.summonHorse();
                 }
 
@@ -697,8 +693,7 @@ public class PlayerListener implements Listener {
 
             chatManager = ChatManagerFactory.getChatManager(plugin, ChatMode.PARTY);
             ((PartyChatManager) chatManager).setParty(party);
-        }
-        else if (mcMMOPlayer.isChatEnabled(ChatMode.ADMIN)) {
+        } else if (mcMMOPlayer.isChatEnabled(ChatMode.ADMIN)) {
             chatManager = ChatManagerFactory.getChatManager(plugin, ChatMode.ADMIN);
         }
 

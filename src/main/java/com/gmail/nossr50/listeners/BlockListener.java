@@ -50,6 +50,7 @@ public class BlockListener implements Listener {
         this.plugin = plugin;
     }
 
+#if MC_1_14_PLUS
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockDropItemEvent(BlockDropItemEvent event)
     {
@@ -109,6 +110,7 @@ public class BlockListener implements Listener {
         if(event.getBlock().hasMetadata(mcMMO.BONUS_DROPS_METAKEY))
             event.getBlock().removeMetadata(mcMMO.BONUS_DROPS_METAKEY, plugin);
     }
+#endif
 
     /**
      * Monitor BlockPistonExtend events.

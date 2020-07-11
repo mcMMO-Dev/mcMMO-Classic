@@ -9,8 +9,29 @@
         <url>https://github.com/mcMMO-Dev/mcMMO-Classic/issues</url>
         <system>GitHub</system>
     </issueManagement>
+    <profiles>
+        <profile>
+            <id>1.14+</id>
+            <build>
+                <finalName>mcMMO</finalName>
+            </build>
+            <properties>
+                <VersionPreProcessorDirective>MC_1_14_PLUS</VersionPreProcessorDirective>
+                <SpigotAPIVersion>1.14-R0.1-SNAPSHOT</SpigotAPIVersion>
+            </properties>
+        </profile>
+        <profile>
+            <id>1.13</id>
+            <build>
+                <finalName>mcMMO-1.13</finalName>
+            </build>
+            <properties>
+                <VersionPreProcessorDirective>MC_1_13</VersionPreProcessorDirective>
+                <SpigotAPIVersion>1.13-R0.1-SNAPSHOT</SpigotAPIVersion>
+            </properties>
+        </profile>
+    </profiles>
     <build>
-        <finalName>mcMMO</finalName>
         <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
         <resources>
             <resource>
@@ -51,12 +72,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>3.8.1</version>
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <excludes>
-                    </excludes>
+                    <compilerArgs>
+                        <!-- Configure manifold plugin -->
+                        <arg>-Xplugin:Manifold</arg>
+                        <arg>-A${VersionPreProcessorDirective}</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -129,9 +153,15 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>systems.manifold</groupId>
+            <artifactId>manifold-preprocessor</artifactId>
+            <version>${manifold.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.14-R0.1-SNAPSHOT</version>
+            <version>${SpigotAPIVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -149,6 +179,9 @@
     </dependencies>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <manifold.version>2020.1.19</manifold.version>
+        <VersionPreProcessorDirective/>
+        <SpigotAPIVersion/>
     </properties>
     <ciManagement>
         <system>Jenkins</system>

@@ -35,7 +35,9 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.potion.Potion;
 import org.bukkit.potion.PotionType;
+#if MC_1_14_PLUS
 import org.bukkit.util.BoundingBox;
+#endif
 import org.bukkit.util.Vector;
 
 import java.util.*;
@@ -48,17 +50,6 @@ public class FishingManager extends SkillManager {
     private Location fishingTarget;
     private Item fishingCatch;
     private Location hookLocation;
-
-    public static final int FISHING_ROD_CAST_CD_MILLISECONDS = 100;
-    public static final int OVERFISH_LIMIT = 10;
-
-    private long fishingRodCastTimestamp = 0L;
-    private long fishHookSpawnTimestamp = 0L;
-    private long lastWarned = 0L;
-    private long lastWarnedExhaust = 0L;
-    private FishHook fishHookReference;
-    private BoundingBox lastFishingBoundingBox;
-    private int fishCaughtCounter = 1;
 
     public FishingManager(McMMOPlayer mcMMOPlayer) {
         super(mcMMOPlayer, SkillType.FISHING);
@@ -73,6 +64,18 @@ public class FishingManager extends SkillManager {
         return getSkillLevel() >= AdvancedConfig.getInstance().getMasterAnglerUnlockLevel() && Permissions.secondaryAbilityEnabled(getPlayer(), SecondaryAbility.MASTER_ANGLER);
     }
 
+#if MC_1_14_PLUS
+    public static final int FISHING_ROD_CAST_CD_MILLISECONDS = 100;
+    public static final int OVERFISH_LIMIT = 10;
+
+    private long fishingRodCastTimestamp = 0L;
+    private long fishHookSpawnTimestamp = 0L;
+    private long lastWarned = 0L;
+    private long lastWarnedExhaust = 0L;
+    private FishHook fishHookReference;
+    private BoundingBox lastFishingBoundingBox;
+    private int fishCaughtCounter = 1;
+
     public boolean isExploitingFishing(Vector centerOfCastVector) {
 
         /*Block targetBlock = getPlayer().getTargetBlock(BlockUtils.getTransparentBlocks(), 100);
@@ -80,7 +83,6 @@ public class FishingManager extends SkillManager {
         if (!targetBlock.isLiquid()) {
             return false;
         }*/
-
         BoundingBox newCastBoundingBox = makeBoundingBox(centerOfCastVector);
 
         boolean sameTarget = lastFishingBoundingBox != null && lastFishingBoundingBox.overlaps(newCastBoundingBox);
@@ -156,6 +158,7 @@ public class FishingManager extends SkillManager {
 
         fishingRodCastTimestamp = System.currentTimeMillis();
     }
+#endif
 
     public boolean unleashTheKraken() {
         return unleashTheKraken(true);
