@@ -7,24 +7,27 @@ import org.bukkit.World;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.BitSet;
 import java.util.UUID;
 
 public class PrimitiveChunkStore implements ChunkStore {
     private static final long serialVersionUID = -1L;
     transient private boolean dirty = false;
-    /** X, Z, Y */
-    public boolean[][][] store;
-    private static final int CURRENT_VERSION = 7;
+    // Bitset store conforms to a "bottom-up" bit ordering consisting of a stack of {worldHeight} Y planes, each Y plane consists of 16 Z rows of 16 X bits.
+    public BitSet store;
+    private static final int CURRENT_VERSION = 8;
     private static final int MAGIC_NUMBER = 0xEA5EDEBB;
     private int cx;
     private int cz;
+    private int worldHeight;
     private UUID worldUid;
 
     public PrimitiveChunkStore(World world, int cx, int cz) {
         this.cx = cx;
         this.cz = cz;
         this.worldUid = world.getUID();
-        this.store = new boolean[16][16][world.getMaxHeight()];
+        this.worldHeight = world.getMaxHeight();
+        this.store = new BitSet(16 * 16 * worldHeight);
     }
 
     @Override
@@ -49,45 +52,37 @@ public class PrimitiveChunkStore implements ChunkStore {
 
     @Override
     public boolean isTrue(int x, int y, int z) {
-        return store[x][z][y];
+        return store.get(coordToIndex(x, y, z));
     }
 
     @Override
     public void setTrue(int x, int y, int z) {
-        if (y >= store[0][0].length || y < 0)
-            return;
-        store[x][z][y] = true;
-        dirty = true;
+        set(x, y, z, true);
     }
 
     @Override
     public void setFalse(int x, int y, int z) {
-        if (y >= store[0][0].length || y < 0)
+        set(x, y, z, false);
+    }
+
+    private void set(int x, int y, int z, boolean value) {
+        if (y >= worldHeight || y < 0)
             return;
-        store[x][z][y] = false;
+        store.set(coordToIndex(x, y, z), value);
         dirty = true;
     }
 
     @Override
     public boolean isEmpty() {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < store[0][0].length; y++) {
-                    if (store[x][z][y]) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return store.isEmpty();
     }
 
     @Override
     public void copyFrom(ChunkletStore otherStore) {
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < store[0][0].length; y++) {
-                    store[x][z][y] = otherStore.isTrue(x, y, z);
+                for (int y = 0; y < worldHeight; y++) {
+                    store.set(coordToIndex(x, y, z), otherStore.isTrue(x, y, z));
                 }
             }
         }
@@ -102,7 +97,12 @@ public class PrimitiveChunkStore implements ChunkStore {
         out.writeLong(worldUid.getMostSignificantBits());
         out.writeInt(cx);
         out.writeInt(cz);
-        out.writeObject(store);
+        out.writeInt(worldHeight);
+
+        // Store the byte array directly so we don't have the object type info overhead
+        byte[] storeData = store.toByteArray();
+        out.writeInt(storeData.length);
+        out.write(storeData);
 
         dirty = false;
     }
@@ -122,26 +122,45 @@ public class PrimitiveChunkStore implements ChunkStore {
         cx = in.readInt();
         cz = in.readInt();
 
-        store = (boolean[][][]) in.readObject();
-
-        if (fileVersionNumber < 5) {
-            fixArray();
-            dirty = true;
-        }
-    }
-
-    private void fixArray() {
-        boolean[][][] temp = this.store;
-        this.store = new boolean[16][16][Bukkit.getWorld(worldUid).getMaxHeight()];
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < store[0][0].length; y++) {
-                    try {
-                        store[x][z][y] = temp[x][y][z];
+        // Prior to version 8 we stored a boolean array array array.  Read them in and copy into the new bitset
+        if (fileVersionNumber < 8) {
+            boolean[][][] oldStore = (boolean[][][]) in.readObject();
+            worldHeight = oldStore[0][0].length;
+            store = new BitSet(16 * 16 * worldHeight / 8);
+            for (int x = 0; x < 16; x++) {
+                for (int z = 0; z < 16; z++) {
+                    for (int y = 0; y < worldHeight; y++) {
+                        store.set(coordToIndex(x, y, z), oldStore[x][z][y]);
                     }
-                    catch (Exception e) {}
                 }
             }
+            dirty = true;
         }
+        else
+        {
+            worldHeight = in.readInt();
+            byte[] temp = new byte[in.readInt()];
+            in.readFully(temp);
+            store = BitSet.valueOf(temp);
+        }
+        World world = Bukkit.getWorld(worldUid);
+        // Not sure how this case could come up, but might as well handle it gracefully.  Loading a chunkstore for an unloaded world?
+        if (world == null)
+            return;
+        // Lop off any extra data if the world height has shrunk
+        int currentWorldHeight = world.getMaxHeight();
+        if (currentWorldHeight < worldHeight)
+        {
+            store.clear(coordToIndex(16, currentWorldHeight, 16), store.length());
+            worldHeight = currentWorldHeight;
+            dirty = true;
+        }
+        // If the world height has grown, update the worldHeight variable, but don't bother marking it dirty as unless something else changes we don't need to force a file write;
+        else if (currentWorldHeight > worldHeight)
+            worldHeight = currentWorldHeight;
+    }
+
+    private int coordToIndex(int x, int y, int z) {
+        return (z * 16 + x) + (256 * y);
     }
 }
