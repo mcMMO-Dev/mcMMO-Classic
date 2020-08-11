@@ -1,6 +1,5 @@
 package com.gmail.nossr50.util.blockmeta.chunkmeta;
 
-import com.gmail.nossr50.util.blockmeta.ChunkletStore;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 
@@ -75,18 +74,6 @@ public class PrimitiveChunkStore implements ChunkStore {
     @Override
     public boolean isEmpty() {
         return store.isEmpty();
-    }
-
-    @Override
-    public void copyFrom(ChunkletStore otherStore) {
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < worldHeight; y++) {
-                    store.set(coordToIndex(x, y, z), otherStore.isTrue(x, y, z));
-                }
-            }
-        }
-        dirty = true;
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {

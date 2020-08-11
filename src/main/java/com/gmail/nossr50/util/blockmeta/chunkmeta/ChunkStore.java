@@ -1,7 +1,5 @@
 package com.gmail.nossr50.util.blockmeta.chunkmeta;
 
-import com.gmail.nossr50.util.blockmeta.ChunkletStore;
-
 import java.io.Serializable;
 
 /**
@@ -68,11 +66,4 @@ public interface ChunkStore extends Serializable {
      * @return true if all values in the chunklet are false, false if otherwise
      */
     public boolean isEmpty();
-
-    /**
-     * Set all values in this ChunkletStore to the values from another provided ChunkletStore
-     *
-     * @param otherStore Another ChunkletStore that this one should copy all data from
-     */
-    public void copyFrom(ChunkletStore otherStore);
 }

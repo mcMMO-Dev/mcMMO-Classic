@@ -1,7 +1,6 @@
 package com.gmail.nossr50.util.blockmeta.chunkmeta;
 
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.util.blockmeta.conversion.BlockStoreConversionZDirectory;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -13,8 +12,6 @@ import java.util.*;
 public class HashChunkManager implements ChunkManager {
     private HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>> regionFiles = new HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>>();
     public HashMap<String, ChunkStore> store = new HashMap<String, ChunkStore>();
-    public ArrayList<BlockStoreConversionZDirectory> converters = new ArrayList<BlockStoreConversionZDirectory>();
-    private HashMap<UUID, Boolean> oldData = new HashMap<UUID, Boolean>();
 
     @Override
     public synchronized void closeAll() {
@@ -136,15 +133,6 @@ public class HashChunkManager implements ChunkManager {
         }
 
         UUID key = world.getUID();
-
-        if (!oldData.containsKey(key)) {
-            oldData.put(key, (new File(world.getWorldFolder(), "mcmmo_data")).exists());
-        }
-        else if (oldData.get(key)) {
-            if (convertChunk(new File(world.getWorldFolder(), "mcmmo_data"), cx, cz, world, true)) {
-                return;
-            }
-        }
 
         ChunkStore chunkStore = null;
 
@@ -415,48 +403,4 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized void cleanUp() {}
-
-    public synchronized void convertChunk(File dataDir, int cx, int cz, World world) {
-        convertChunk(dataDir, cx, cz, world, false);
-    }
-
-    public synchronized boolean convertChunk(File dataDir, int cx, int cz, World world, boolean actually) {
-        if (!actually || !dataDir.exists()) {
-            return false;
-        }
-
-        File cxDir = new File(dataDir, "" + cx);
-        if (!cxDir.exists()) {
-            return false;
-        }
-
-        File czDir = new File(cxDir, "" + cz);
-        if (!czDir.exists()) {
-            return false;
-        }
-
-        boolean conversionSet = false;
-
-        for (BlockStoreConversionZDirectory converter : this.converters) {
-            if (converter == null) {
-                continue;
-            }
-
-            if (converter.taskID >= 0) {
-                continue;
-            }
-
-            converter.start(world, cxDir, czDir);
-            conversionSet = true;
-            break;
-        }
-
-        if (!conversionSet) {
-            BlockStoreConversionZDirectory converter = new BlockStoreConversionZDirectory();
-            converter.start(world, cxDir, czDir);
-            converters.add(converter);
-        }
-
-        return true;
-    }
 }
