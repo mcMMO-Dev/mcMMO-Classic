@@ -1,4 +1,4 @@
-package com.gmail.nossr50.util.blockmeta.chunkmeta;
+package com.gmail.nossr50.util.blockmeta;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 import java.util.BitSet;
 import java.util.UUID;
 
-public class PrimitiveChunkStore implements ChunkStore {
+public class BitSetChunkStore implements ChunkStore {
     private static final long serialVersionUID = -1L;
     transient private boolean dirty = false;
     // Bitset store conforms to a "bottom-up" bit ordering consisting of a stack of {worldHeight} Y planes, each Y plane consists of 16 Z rows of 16 X bits.
@@ -21,7 +21,7 @@ public class PrimitiveChunkStore implements ChunkStore {
     private int worldHeight;
     private UUID worldUid;
 
-    public PrimitiveChunkStore(World world, int cx, int cz) {
+    public BitSetChunkStore(World world, int cx, int cz) {
         this.cx = cx;
         this.cz = cz;
         this.worldUid = world.getUID();
@@ -64,7 +64,8 @@ public class PrimitiveChunkStore implements ChunkStore {
         set(x, y, z, false);
     }
 
-    private void set(int x, int y, int z, boolean value) {
+    @Override
+    public void set(int x, int y, int z, boolean value) {
         if (y >= worldHeight || y < 0)
             return;
         store.set(coordToIndex(x, y, z), value);

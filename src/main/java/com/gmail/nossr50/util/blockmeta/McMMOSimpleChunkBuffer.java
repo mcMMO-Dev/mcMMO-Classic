@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.gmail.nossr50.util.blockmeta.chunkmeta;
+package com.gmail.nossr50.util.blockmeta;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -17,29 +17,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.gmail.nossr50.util.blockmeta.chunkmeta;
+package com.gmail.nossr50.util.blockmeta;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+/**
+ * Stores a small header section that contains indexes to chunk locations as well as information such as size of the chunk data at those locations
+ */
 public class McMMOSimpleRegionFile {
     private RandomAccessFile file;
     private final int[] dataStart = new int[1024];
     private final int[] dataActualLength = new int[1024];
     private final int[] dataLength = new int[1024];
-    private final ArrayList<Boolean> inuse = new ArrayList<Boolean>();
+    private final ArrayList<Boolean> inuse = new ArrayList<>();
     private int segmentSize;
     private int segmentMask;
     private final int rx;
     private final int rz;
     private final int defaultSegmentSize;
     private final File parent;
-    @SuppressWarnings("unused")
-    private long lastAccessTime = System.currentTimeMillis();
-    @SuppressWarnings("unused")
-    private static long TIMEOUT_TIME = 300000; // 5 min
 
     public McMMOSimpleRegionFile(File f, int rx, int rz) {
         this(f, rx, rz, 10);
@@ -51,110 +50,59 @@ public class McMMOSimpleRegionFile {
         this.defaultSegmentSize = defaultSegmentSize;
         this.parent = f;
 
-        lastAccessTime = System.currentTimeMillis();
-        if (file == null) {
-            try {
-                this.file = new RandomAccessFile(parent, "rw");
-
-                if (file.length() < 4096 * 3) {
-                    for (int i = 0; i < 1024 * 3; i++) {
-                        file.writeInt(0);
-                    }
-                    file.seek(4096 * 2);
-                    file.writeInt(defaultSegmentSize);
-                }
-
-                file.seek(4096 * 2);
-
-                this.segmentSize = file.readInt();
-                this.segmentMask = (1 << segmentSize) - 1;
-
-                int reservedSegments = this.sizeToSegments(4096 * 3);
-
-                for (int i = 0; i < reservedSegments; i++) {
-                    while (inuse.size() <= i) {
-                        inuse.add(false);
-                    }
-                    inuse.set(i, true);
-                }
-
-                file.seek(0);
-
-                for (int i = 0; i < 1024; i++) {
-                    dataStart[i] = file.readInt();
-                }
-
-                for (int i = 0; i < 1024; i++) {
-                    dataActualLength[i] = file.readInt();
-                    dataLength[i] = sizeToSegments(dataActualLength[i]);
-                    setInUse(i, true);
-                }
-
-                extendFile();
-            }
-            catch (IOException fnfe) {
-                throw new RuntimeException(fnfe);
-            }
-        }
+        loadFile();
     }
 
     public synchronized final RandomAccessFile getFile() {
-        lastAccessTime = System.currentTimeMillis();
-        if (file == null) {
-            try {
-                this.file = new RandomAccessFile(parent, "rw");
-
-                if (file.length() < 4096 * 3) {
-                    for (int i = 0; i < 1024 * 3; i++) {
-                        file.writeInt(0);
-                    }
-                    file.seek(4096 * 2);
-                    file.writeInt(defaultSegmentSize);
-                }
-
-                file.seek(4096 * 2);
-
-                this.segmentSize = file.readInt();
-                this.segmentMask = (1 << segmentSize) - 1;
-
-                int reservedSegments = this.sizeToSegments(4096 * 3);
-
-                for (int i = 0; i < reservedSegments; i++) {
-                    while (inuse.size() <= i) {
-                        inuse.add(false);
-                    }
-                    inuse.set(i, true);
-                }
-
-                file.seek(0);
-
-                for (int i = 0; i < 1024; i++) {
-                    dataStart[i] = file.readInt();
-                }
-
-                for (int i = 0; i < 1024; i++) {
-                    dataActualLength[i] = file.readInt();
-                    dataLength[i] = sizeToSegments(dataActualLength[i]);
-                    setInUse(i, true);
-                }
-
-                extendFile();
-            }
-            catch (IOException fnfe) {
-                throw new RuntimeException(fnfe);
-            }
-        }
+        if (file == null)
+            loadFile();
         return file;
     }
 
-    public synchronized boolean testCloseTimeout() {
-        /*
-        if (System.currentTimeMillis() - TIMEOUT_TIME > lastAccessTime) {
-            close();
-            return true;
+    private synchronized void loadFile()
+    {
+        try {
+            this.file = new RandomAccessFile(parent, "rw");
+
+            if (file.length() < 4096 * 3) {
+                for (int i = 0; i < 1024 * 3; i++) {
+                    file.writeInt(0);
+                }
+                file.seek(4096 * 2);
+                file.writeInt(defaultSegmentSize);
+            }
+
+            file.seek(4096 * 2);
+
+            this.segmentSize = file.readInt();
+            this.segmentMask = (1 << segmentSize) - 1;
+
+            int reservedSegments = this.sizeToSegments(4096 * 3);
+
+            for (int i = 0; i < reservedSegments; i++) {
+                while (inuse.size() <= i) {
+                    inuse.add(false);
+                }
+                inuse.set(i, true);
+            }
+
+            file.seek(0);
+
+            for (int i = 0; i < 1024; i++) {
+                dataStart[i] = file.readInt();
+            }
+
+            for (int i = 0; i < 1024; i++) {
+                dataActualLength[i] = file.readInt();
+                dataLength[i] = sizeToSegments(dataActualLength[i]);
+                setInUse(i, true);
+            }
+
+            extendFile();
         }
-         */
-        return false;
+        catch (IOException fnfe) {
+            throw new RuntimeException(fnfe);
+        }
     }
 
     public synchronized DataOutputStream getOutputStream(int x, int z) {

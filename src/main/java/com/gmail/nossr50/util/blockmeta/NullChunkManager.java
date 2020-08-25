@@ -1,9 +1,8 @@
-package com.gmail.nossr50.util.blockmeta.chunkmeta;
+package com.gmail.nossr50.util.blockmeta;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 
 import java.io.IOException;
 
@@ -24,27 +23,7 @@ public class NullChunkManager implements ChunkManager {
     public void closeChunkStore(World world, int x, int z) {}
 
     @Override
-    public void loadChunklet(int cx, int cy, int cz, World world) {}
-
-    @Override
-    public void unloadChunklet(int cx, int cy, int cz, World world) {}
-
-    @Override
-    public void loadChunk(int cx, int cz, World world, Entity[] entities) {}
-
-    @Override
-    public void unloadChunk(int cx, int cz, World world) {}
-
-    @Override
     public void saveChunk(int cx, int cz, World world) {}
-
-    @Override
-    public boolean isChunkLoaded(int cx, int cz, World world) {
-        return true;
-    }
-
-    @Override
-    public void chunkLoaded(int cx, int cz, World world) {}
 
     @Override
     public void chunkUnloaded(int cx, int cz, World world) {}

@@ -1,17 +1,16 @@
-package com.gmail.nossr50.util.blockmeta.chunkmeta;
+package com.gmail.nossr50.util.blockmeta;
 
 import com.gmail.nossr50.mcMMO;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
-import org.bukkit.entity.Entity;
 
 import java.io.*;
 import java.util.*;
 
 public class HashChunkManager implements ChunkManager {
-    private HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>> regionFiles = new HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>>();
-    public HashMap<String, ChunkStore> store = new HashMap<String, ChunkStore>();
+    private final HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>> regionFiles = new HashMap<>();
+    public HashMap<ChunkKey, ChunkStore> store = new HashMap<>();
 
     @Override
     public synchronized void closeAll() {
@@ -32,45 +31,30 @@ public class HashChunkManager implements ChunkManager {
     public synchronized ChunkStore readChunkStore(World world, int x, int z) throws IOException {
         McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z);
         InputStream in = rf.getInputStream(x, z);
-        if (in == null) {
+        if (in == null)
             return null;
-        }
-        ObjectInputStream objectStream = new ObjectInputStream(in);
-        try {
+        try (ObjectInputStream objectStream = new RefactorObjectInputStream(in)) {
             Object o = objectStream.readObject();
             if (o instanceof ChunkStore) {
                 return (ChunkStore) o;
             }
 
             throw new RuntimeException("Wrong class type read for chunk meta data for " + x + ", " + z);
-        }
-        catch (IOException e) {
-            // Assume the format changed
+        } catch (IOException | ClassNotFoundException e) {
             return null;
-            //throw new RuntimeException("Unable to process chunk meta data for " + x + ", " + z, e);
-        }
-        catch (ClassNotFoundException e) {
-            // Assume the format changed
-            //System.out.println("[SpoutPlugin] is Unable to find serialized class for " + x + ", " + z + ", " + e.getMessage());
-            return null;
-            //throw new RuntimeException("Unable to find serialized class for " + x + ", " + z, e);
-        }
-        finally {
-            objectStream.close();
         }
     }
 
     @Override
     public synchronized void writeChunkStore(World world, int x, int z, ChunkStore data) {
-        if (!data.isDirty()) {
+        if (!data.isDirty())
             return;
-        }
         try {
             McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z);
-            ObjectOutputStream objectStream = new ObjectOutputStream(rf.getOutputStream(x, z));
-            objectStream.writeObject(data);
-            objectStream.flush();
-            objectStream.close();
+            try (ObjectOutputStream objectStream = new ObjectOutputStream(rf.getOutputStream(x, z))) {
+                objectStream.writeObject(data);
+                objectStream.flush();
+            }
             data.setDirty(false);
         }
         catch (IOException e) {
@@ -81,9 +65,7 @@ public class HashChunkManager implements ChunkManager {
     @Override
     public synchronized void closeChunkStore(World world, int x, int z) {
         McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z);
-        if (rf != null) {
-            rf.close();
-        }
+        rf.close();
     }
 
     private synchronized McMMOSimpleRegionFile getSimpleRegionFile(World world, int x, int z) {
@@ -93,12 +75,7 @@ public class HashChunkManager implements ChunkManager {
 
         UUID key = world.getUID();
 
-        HashMap<Long, McMMOSimpleRegionFile> worldRegions = regionFiles.get(key);
-
-        if (worldRegions == null) {
-            worldRegions = new HashMap<Long, McMMOSimpleRegionFile>();
-            regionFiles.put(key, worldRegions);
-        }
+        HashMap<Long, McMMOSimpleRegionFile> worldRegions = regionFiles.computeIfAbsent(key, k -> new HashMap<>());
 
         int rx = x >> 5;
         int rz = z >> 5;
@@ -116,47 +93,24 @@ public class HashChunkManager implements ChunkManager {
         return regionFile;
     }
 
-    @Override
-    public synchronized void loadChunklet(int cx, int cy, int cz, World world) {
-        loadChunk(cx, cz, world, null);
-    }
-
-    @Override
-    public synchronized void unloadChunklet(int cx, int cy, int cz, World world) {
-        unloadChunk(cx, cz, world);
-    }
-
-    @Override
-    public synchronized void loadChunk(int cx, int cz, World world, Entity[] entities) {
-        if (world == null || store.containsKey(world.getName() + "," + cx + "," + cz)) {
-            return;
-        }
-
-        UUID key = world.getUID();
-
+    private ChunkStore loadChunk(int cx, int cz, World world) {
         ChunkStore chunkStore = null;
 
         try {
             chunkStore = readChunkStore(world, cx, cz);
         }
-        catch (Exception e) {}
+        catch (Exception ignored) {}
 
-        if (chunkStore == null) {
-            return;
-        }
+        // Nothing on disk
+        if (chunkStore == null)
+            return null;
 
-        store.put(world.getName() + "," + cx + "," + cz, chunkStore);
+        return chunkStore;
     }
 
-    @Override
-    public synchronized void unloadChunk(int cx, int cz, World world) {
+    public void unloadChunk(int cx, int cz, World world) {
         saveChunk(cx, cz, world);
-
-        if (store.containsKey(world.getName() + "," + cx + "," + cz)) {
-            store.remove(world.getName() + "," + cx + "," + cz);
-
-            //closeChunkStore(world, cx, cz);
-        }
+        store.remove(toChunkKey(world, cx, cz));
     }
 
     @Override
@@ -165,30 +119,18 @@ public class HashChunkManager implements ChunkManager {
             return;
         }
 
-        String key = world.getName() + "," + cx + "," + cz;
+        ChunkKey key = toChunkKey(world, cx, cz);
 
-        if (store.containsKey(key)) {
-            ChunkStore out = store.get(world.getName() + "," + cx + "," + cz);
+        ChunkStore out = store.get(key);
 
-            if (!out.isDirty()) {
-                return;
-            }
+        if (out == null)
+            return;
 
-            writeChunkStore(world, cx, cz, out);
-        }
+        if (!out.isDirty())
+            return;
+
+        writeChunkStore(world, cx, cz, out);
     }
-
-    @Override
-    public synchronized boolean isChunkLoaded(int cx, int cz, World world) {
-        if (world == null) {
-            return false;
-        }
-
-        return store.containsKey(world.getName() + "," + cx + "," + cz);
-    }
-
-    @Override
-    public synchronized void chunkLoaded(int cx, int cz, World world) {}
 
     @Override
     public synchronized void chunkUnloaded(int cx, int cz, World world) {
@@ -206,14 +148,13 @@ public class HashChunkManager implements ChunkManager {
         }
 
         closeAll();
-        String worldName = world.getName();
+        UUID wID = world.getUID();
 
-        List<String> keys = new ArrayList<String>(store.keySet());
-        for (String key : keys) {
-            String[] info = key.split(",");
-            if (worldName.equals(info[0])) {
+        List<ChunkKey> keys = new ArrayList<>(store.keySet());
+        for (ChunkKey key : keys) {
+            if (wID.equals(key.worldID)) {
                 try {
-                    saveChunk(Integer.parseInt(info[1]), Integer.parseInt(info[2]), world);
+                    saveChunk(key.cx, key.cz, world);
                 }
                 catch (Exception e) {
                     // Ignore
@@ -229,14 +170,13 @@ public class HashChunkManager implements ChunkManager {
         }
 
         closeAll();
-        String worldName = world.getName();
+        UUID wID = world.getUID();
 
-        List<String> keys = new ArrayList<String>(store.keySet());
-        for (String key : keys) {
-            String[] info = key.split(",");
-            if (worldName.equals(info[0])) {
+        List<ChunkKey> keys = new ArrayList<>(store.keySet());
+        for (ChunkKey key : keys) {
+            if (wID.equals(key.worldID)) {
                 try {
-                    unloadChunk(Integer.parseInt(info[1]), Integer.parseInt(info[2]), world);
+                    unloadChunk(key.cx, key.cz, world);
                 }
                 catch (Exception e) {
                     // Ignore
@@ -268,24 +208,21 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized boolean isTrue(int x, int y, int z, World world) {
-        if (world == null) {
+        if (world == null)
             return false;
-        }
 
         int cx = x >> 4;
         int cz = z >> 4;
 
-        String key = world.getName() + "," + cx + "," + cz;
+        ChunkKey key = toChunkKey(world, cx, cz);
 
-        if (!store.containsKey(key)) {
-            loadChunk(cx, cz, world, null);
-        }
+        // Get chunk, load from file if necessary
+        ChunkStore check = store.computeIfAbsent(key, k -> loadChunk(cx, cz, world));
 
-        if (!store.containsKey(key)) {
+        // No chunk, return false
+        if (check == null)
             return false;
-        }
 
-        ChunkStore check = store.get(key);
         int ix = Math.abs(x) % 16;
         int iz = Math.abs(z) % 16;
 
@@ -294,113 +231,131 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized boolean isTrue(Block block) {
-        if (block == null) {
+        if (block == null)
             return false;
-        }
 
         return isTrue(block.getX(), block.getY(), block.getZ(), block.getWorld());
     }
 
     @Override
     public synchronized boolean isTrue(BlockState blockState) {
-        if (blockState == null) {
+        if (blockState == null)
             return false;
-        }
 
         return isTrue(blockState.getX(), blockState.getY(), blockState.getZ(), blockState.getWorld());
     }
 
     @Override
     public synchronized void setTrue(int x, int y, int z, World world) {
-        if (world == null) {
-            return;
-        }
-
-        int cx = x >> 4;
-        int cz = z >> 4;
-
-        int ix = Math.abs(x) % 16;
-        int iz = Math.abs(z) % 16;
-
-        String key = world.getName() + "," + cx + "," + cz;
-
-        if (!store.containsKey(key)) {
-            loadChunk(cx, cz, world, null);
-        }
-
-        ChunkStore cStore = store.get(key);
-
-        if (cStore == null) {
-            cStore = ChunkStoreFactory.getChunkStore(world, cx, cz);
-            store.put(key, cStore);
-        }
-
-        cStore.setTrue(ix, y, iz);
+        set(x, y, z, world, true);
     }
 
     @Override
     public synchronized void setTrue(Block block) {
-        if (block == null) {
+        if (block == null)
             return;
-        }
 
         setTrue(block.getX(), block.getY(), block.getZ(), block.getWorld());
     }
 
     @Override
     public void setTrue(BlockState blockState) {
-        if (blockState == null) {
+        if (blockState == null)
             return;
-        }
 
         setTrue(blockState.getX(), blockState.getY(), blockState.getZ(), blockState.getWorld());
     }
 
     @Override
     public synchronized void setFalse(int x, int y, int z, World world) {
-        if (world == null) {
-            return;
-        }
-
-        int cx = x >> 4;
-        int cz = z >> 4;
-
-        int ix = Math.abs(x) % 16;
-        int iz = Math.abs(z) % 16;
-
-        String key = world.getName() + "," + cx + "," + cz;
-
-        if (!store.containsKey(key)) {
-            loadChunk(cx, cz, world, null);
-        }
-
-        ChunkStore cStore = store.get(key);
-
-        if (cStore == null) {
-            return; // No need to make a store for something we will be setting to false
-        }
-
-        cStore.setFalse(ix, y, iz);
+        set(x, y, z, world, false);
     }
 
     @Override
     public synchronized void setFalse(Block block) {
-        if (block == null) {
+        if (block == null)
             return;
-        }
 
         setFalse(block.getX(), block.getY(), block.getZ(), block.getWorld());
     }
 
     @Override
     public synchronized void setFalse(BlockState blockState) {
-        if (blockState == null) {
+        if (blockState == null)
             return;
-        }
 
         setFalse(blockState.getX(), blockState.getY(), blockState.getZ(), blockState.getWorld());
     }
 
+    public synchronized  void set(int x, int y, int z, World world, boolean value){
+        if (world == null)
+            return;
+
+        // Bitshift to chunk coordinate
+        int cx = x >> 4;
+        int cz = z >> 4;
+
+        ChunkKey key = toChunkKey(world, cx, cz);
+
+        // Get/Load/Create chunkstore
+        ChunkStore cStore = store.computeIfAbsent(key, k -> {
+            // Load from file
+            ChunkStore loaded = loadChunk(cx, cz, world);
+            if (loaded != null)
+                return loaded;
+            // If setting to false, no need to create an empty chunkstore
+            if (!value)
+                return null;
+            // Create a new chunkstore
+            return ChunkStoreFactory.getChunkStore(world, cx, cz);
+        });
+
+        // Indicates setting false on empty chunkstore
+        if (cStore == null)
+            return;
+
+        // Get block offset (offset from chunk corner)
+        int ix = Math.abs(x) % 16;
+        int iz = Math.abs(z) % 16;
+
+        // Set chunk store value
+        cStore.set(ix, y, iz, value);
+    }
+
+    private ChunkKey toChunkKey(World world, int cx, int cz){
+        return new ChunkKey(world.getUID(), cx, cz);
+    }
+
+    // Chunk Key class
+    private static final class ChunkKey {
+        public final UUID worldID;
+        public final int cx;
+        public final int cz;
+
+        private ChunkKey(UUID worldID, int cx, int cz) {
+            this.worldID = worldID;
+            this.cx = cx;
+            this.cz = cz;
+        }
+    }
+
     @Override
     public synchronized void cleanUp() {}
+
+    // Handles loading the old serialized classes even though we have changed name/package
+    private static class RefactorObjectInputStream extends ObjectInputStream {
+        public RefactorObjectInputStream(InputStream in) throws IOException {
+            super(in);
+            enableResolveObject(true);
+        }
+
+        @Override
+        protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+            ObjectStreamClass read = super.readClassDescriptor();
+            if (read.getName().contentEquals("com.gmail.nossr50.util.blockmeta.chunkmeta.PrimitiveChunkStore")){
+                return ObjectStreamClass.lookup(BitSetChunkStore.class);
+            }
+            return read;
+        }
+    }
 }
