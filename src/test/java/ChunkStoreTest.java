@@ -1,5 +1,7 @@
 import com.gmail.nossr50.util.blockmeta.BitSetChunkStore;
 import com.gmail.nossr50.util.blockmeta.ChunkStore;
+import com.gmail.nossr50.util.blockmeta.HashChunkManager;
+import com.gmail.nossr50.util.blockmeta.McMMOSimpleRegionFile;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
@@ -14,6 +16,8 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -25,28 +29,80 @@ public class ChunkStoreTest {
     @Test
     public void testRoundTrip() {
         Random random = new Random(1000);
-        UUID worldUUID = UUID.randomUUID();
 
-        World world = mock(World.class);
-        Mockito.when(world.getUID()).thenReturn(worldUUID);
-        Mockito.when(world.getMaxHeight()).thenReturn(256);
-        PowerMockito.mockStatic(Bukkit.class);
-        BDDMockito.given(Bukkit.getWorld(worldUUID)).willReturn(world);
+        World world = mockBukkitWorld();
 
         ChunkStore original = new BitSetChunkStore(world, random.nextInt(1000)- 500, random.nextInt(1000) - 500);
-        for (int i = 0; i < random.nextInt(16 * 16 * 256); i++)
-            original.setTrue(random.nextInt(16), random.nextInt(256), random.nextInt(16));
+        populateChunkstore(original, random);
         byte[] serializedBytes = SerializationUtils.serialize(original);
         ChunkStore deserialized = (BitSetChunkStore)SerializationUtils.deserialize(serializedBytes);
-        for (int y = 0; y < 256; y++)
-            for (int x = 0; x < 16; x++)
-                for (int z = 0; z < 16; z++)
-                    Assert.assertEquals(original.isTrue(x, y, z), deserialized.isTrue(x, y, z));
+        assertEqual(original, deserialized);
     }
 
     @Test
-    public void testUpgrade() throws IOException {
+    public void testUpgrade() {
         Random random = new Random(1000);
+
+        World world = mockBukkitWorld();
+
+        ChunkStore original = new LegacyChunkStore(world, random.nextInt(1000) - 500, random.nextInt(1000) - 500);
+        populateChunkstore(original, random);
+        byte[] serializedBytes = SerializationUtils.serialize(original);
+        ChunkStore deserialized = (BitSetChunkStore)deserialize(new ByteArrayInputStream(serializedBytes));
+        assertEqual(original, deserialized);
+    }
+
+    @Test
+    public void testSimpleRegionFileRoundTrip() throws IOException, ClassNotFoundException {
+        Random random = new Random(1000);
+
+        World world = mockBukkitWorld();
+
+        File file = File.createTempFile("mcMMOUnitTestRegion", null);
+        try
+        {
+            McMMOSimpleRegionFile region = new McMMOSimpleRegionFile(file, 0, 0);
+            List<ChunkStore> chunks = new ArrayList<>();
+            for (int cx = 0; cx < 32; cx++)
+                for (int cz = 0; cz < 32; cz++) {
+                    ChunkStore chunk = new BitSetChunkStore(world, cx, cz);
+                    populateChunkstore(chunk, random);
+                    chunks.add(chunk);
+                }
+            for (ChunkStore chunk : chunks)
+            {
+                try (ObjectOutputStream objectStream = new ObjectOutputStream(region.getOutputStream(chunk.getChunkX(), chunk.getChunkZ()))) {
+                    objectStream.writeObject(chunk);
+                    objectStream.flush();
+                }
+            }
+            region.close();
+            region = new McMMOSimpleRegionFile(file, 0, 0);
+            for (ChunkStore original : chunks)
+            {
+                InputStream is = region.getInputStream(original.getChunkX(), original.getChunkZ());
+                Assert.assertNotNull(is);
+                ChunkStore deserialized;
+                try (ObjectInputStream objectStream = new ObjectInputStream(is)) {
+                    deserialized = (ChunkStore)objectStream.readObject();
+                }
+                assertEqual(original, deserialized);
+            }
+            region.close();
+        }
+        finally
+        {
+            file.delete();
+        }
+    }
+
+    private void populateChunkstore(ChunkStore chunkStore, Random random)
+    {
+        for (int i = 0; i < random.nextInt(16 * 16 * 256); i++)
+            chunkStore.setTrue(random.nextInt(16), random.nextInt(256), random.nextInt(16));
+    }
+
+    private World mockBukkitWorld(){
         UUID worldUUID = UUID.randomUUID();
 
         World world = mock(World.class);
@@ -55,15 +111,15 @@ public class ChunkStoreTest {
         PowerMockito.mockStatic(Bukkit.class);
         BDDMockito.given(Bukkit.getWorld(worldUUID)).willReturn(world);
 
-        ChunkStore original = new LegacyChunkStore(world, random.nextInt(1000) - 500, random.nextInt(1000) - 500);
-        for (int i = 0; i < random.nextInt(16 * 16 * 256); i++)
-            original.setTrue(random.nextInt(16), random.nextInt(256), random.nextInt(16));
-        byte[] serializedBytes = SerializationUtils.serialize(original);
-        ChunkStore deserialized = (BitSetChunkStore)deserialize(new ByteArrayInputStream(serializedBytes));
+        return world;
+    }
+
+    private void assertEqual(ChunkStore expected, ChunkStore actual)
+    {
         for (int y = 0; y < 256; y++)
             for (int x = 0; x < 16; x++)
                 for (int z = 0; z < 16; z++)
-                    Assert.assertEquals(original.isTrue(x, y, z), deserialized.isTrue(x, y, z));
+                    Assert.assertEquals(expected.isTrue(x, y, z), actual.isTrue(x, y, z));
     }
 
     public static Object deserialize(ByteArrayInputStream inputStream) {
