@@ -27,7 +27,7 @@ import java.util.zip.InflaterInputStream;
 public class McMMOSimpleRegionFile {
     private static final int SEGMENT_EXPONENT = 10; // Segments are 2^10 bytes long. (1024)
     // Chunk info
-    private final int[] chunkFileIndex = new int[1024];
+    private final int[] chunkSegmentIndex = new int[1024];
     private final int[] chunkNumBytes = new int[1024];
     private final int[] chunkNumSegments = new int[1024];
 
@@ -85,7 +85,7 @@ public class McMMOSimpleRegionFile {
             file.seek(0);
 
             for (int i = 0; i < 1024; i++)
-                chunkFileIndex[i] = file.readInt();
+                chunkSegmentIndex[i] = file.readInt();
 
             for (int i = 0; i < 1024; i++) {
                 chunkNumBytes[i] = file.readInt();
@@ -93,7 +93,7 @@ public class McMMOSimpleRegionFile {
                 markChunkSegments(i, true);
             }
 
-            extendFile();
+            fixFileLength();
         }
         catch (IOException fnfe) {
             throw new RuntimeException(fnfe);
@@ -115,19 +115,19 @@ public class McMMOSimpleRegionFile {
 
         byte[] data = new byte[byteLength];
 
-        getFile().seek(chunkFileIndex[index] << segmentExponent); // Seek to file location
-        getFile().readFully(data); // Ready in the object
+        getFile().seek(chunkSegmentIndex[index] << segmentExponent); // Seek to file location
+        getFile().readFully(data); // Read in the data
         return new DataInputStream(new InflaterInputStream(new ByteArrayInputStream(data)));
     }
 
     synchronized void write(int index, byte[] buffer, int size) throws IOException {
-        int oldStart = chunkFileIndex[index]; // Get current index
+        int oldStart = chunkSegmentIndex[index]; // Get current index
         markChunkSegments(index, false); // Clear our old segments
         int start = findContiguousSegments(oldStart, size); // Find contiguous segments to save to
         getFile().seek(start << segmentExponent); // Seek to file location
         getFile().write(buffer, 0, size); // Write data
         // update in memory info
-        chunkFileIndex[index] = start;
+        chunkSegmentIndex[index] = start;
         chunkNumBytes[index] = size;
         chunkNumSegments[index] = sizeToSegments(size);
         // Mark segments in use
@@ -151,29 +151,33 @@ public class McMMOSimpleRegionFile {
         }
     }
 
-    private synchronized void markChunkSegments(int index, boolean used) {
+    private synchronized void markChunkSegments(int index, boolean inUse) {
         // No bytes used
         if (chunkNumBytes[index] == 0)
             return;
 
-        int start = chunkFileIndex[index];
+        int start = chunkSegmentIndex[index];
         int end = start + chunkNumSegments[index];
 
-        for (int i = start; i < end; i++) {
-            if (segments.get(i) && used)
+        // If we are writing, assert we don't write over any in-use segments
+        if (inUse)
+        {
+            int nextSetBit = segments.nextSetBit(start);
+            if (nextSetBit != -1 && nextSetBit < end)
                 throw new IllegalStateException("Attempting to overwrite an in-use segment");
-            segments.set(i, used);
         }
+
+        segments.set(start, end, inUse);
     }
 
-    private synchronized void extendFile() throws IOException {
-        long extend = (-getFile().length()) & segmentMask;
+    private synchronized void fixFileLength() throws IOException {
+        int fileLength = (int)getFile().length();
+        int extend = -fileLength & segmentMask; // how many bytes do we need to be divisible by segment size
 
-        getFile().seek(getFile().length());
-
-        while ((extend--) > 0) {
-            getFile().write(0);
-        }
+        // Go to end of file
+        getFile().seek(fileLength);
+        // Append bytes
+        getFile().write(new byte[extend], 0, extend);
     }
 
     private synchronized int findContiguousSegments(int hint, int size) {
@@ -214,28 +218,27 @@ public class McMMOSimpleRegionFile {
     }
 
     private synchronized int sizeToSegments(int size) {
-        if (size <= 0) {
+        if (size <= 0)
             return 1;
-        }
 
-        return ((size - 1) >> segmentExponent) + 1;
+        return ((size - 1) >> segmentExponent) + 1; // ((Size - 1) / segmentSize) + 1
     }
 
-    private synchronized Integer getChunkIndex(int x, int z) {
+    private synchronized int getChunkIndex(int x, int z) {
         if (rx != (x >> 5) || rz != (z >> 5)) {
             throw new RuntimeException(x + ", " + z + " not in region " + rx + ", " + rz);
         }
 
-        x = x & 0x1F;
-        z = z & 0x1F;
+        x = x & 0x1F; // 5 bits (mod 32)
+        z = z & 0x1F; // 5 bits (mod 32)
 
-        return (x << 5) + z;
+        return (x << 5) + z; // x in the upper 5 bits, z in the lower 5 bits
     }
 
     private synchronized void writeFATHeader() throws IOException {
         getFile().seek(0);
         for (int i = 0; i < 1024; i++) {
-            getFile().writeInt(chunkFileIndex[i]);
+            getFile().writeInt(chunkSegmentIndex[i]);
         }
 
         for (int i = 0; i < 1024; i++) {

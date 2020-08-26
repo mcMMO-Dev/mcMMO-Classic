@@ -10,7 +10,7 @@ import java.util.*;
 
 public class HashChunkManager implements ChunkManager {
     private final HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>> regionFiles = new HashMap<>();
-    public HashMap<ChunkKey, ChunkStore> store = new HashMap<>();
+    private final HashMap<ChunkKey, ChunkStore> store = new HashMap<>();
 
     @Override
     public synchronized void closeAll() {
@@ -29,19 +29,22 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized ChunkStore readChunkStore(World world, int x, int z) throws IOException {
-        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z);
-        InputStream in = rf.getInputStream(x, z);
-        if (in == null)
+        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z, false);
+        if (rf == null)
             return null;
-        try (ObjectInputStream objectStream = new RefactorObjectInputStream(in)) {
-            Object o = objectStream.readObject();
-            if (o instanceof ChunkStore) {
-                return (ChunkStore) o;
-            }
+        try (InputStream in = rf.getInputStream(x, z)) {
+            if (in == null)
+                return null;
+            try (ObjectInputStream objectStream = new RefactorObjectInputStream(in)) {
+                Object o = objectStream.readObject();
+                if (o instanceof ChunkStore) {
+                    return (ChunkStore) o;
+                }
 
-            throw new RuntimeException("Wrong class type read for chunk meta data for " + x + ", " + z);
-        } catch (IOException | ClassNotFoundException e) {
-            return null;
+                throw new RuntimeException("Wrong class type read for chunk meta data for " + x + ", " + z);
+            } catch (IOException | ClassNotFoundException e) {
+                return null;
+            }
         }
     }
 
@@ -50,7 +53,7 @@ public class HashChunkManager implements ChunkManager {
         if (!data.isDirty())
             return;
         try {
-            McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z);
+            McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z, true);
             try (ObjectOutputStream objectStream = new ObjectOutputStream(rf.getOutputStream(x, z))) {
                 objectStream.writeObject(data);
                 objectStream.flush();
@@ -64,33 +67,33 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized void closeChunkStore(World world, int x, int z) {
-        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z);
+        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z, false);
+        if (rf == null)
+            return;
         rf.close();
     }
 
-    private synchronized McMMOSimpleRegionFile getSimpleRegionFile(World world, int x, int z) {
-        File directory = new File(world.getWorldFolder(), "mcmmo_regions");
+    private synchronized McMMOSimpleRegionFile getSimpleRegionFile(World world, int x, int z, boolean createIfAbsent) {
+        // Get map for this world.
+        HashMap<Long, McMMOSimpleRegionFile> worldRegions = regionFiles.computeIfAbsent(world.getUID(), k -> new HashMap<>());
 
-        directory.mkdirs();
-
-        UUID key = world.getUID();
-
-        HashMap<Long, McMMOSimpleRegionFile> worldRegions = regionFiles.computeIfAbsent(key, k -> new HashMap<>());
-
+        // Compute region index (32x32 chunk regions)
         int rx = x >> 5;
         int rz = z >> 5;
 
+        // Key  is just a 64bit number, upper 32 bits are rx, lower 32 bits are rz
         long key2 = (((long) rx) << 32) | ((rz) & 0xFFFFFFFFL);
 
-        McMMOSimpleRegionFile regionFile = worldRegions.get(key2);
-
-        if (regionFile == null) {
-            File file = new File(directory, "mcmmo_" + rx + "_" + rz + "_.mcm");
-            regionFile = new McMMOSimpleRegionFile(file, rx, rz);
-            worldRegions.put(key2, regionFile);
-        }
-
-        return regionFile;
+        return worldRegions.computeIfAbsent(key2, k -> {
+            File worldRegionsDirectory = new File(world.getWorldFolder(), "mcmmo_regions");
+            if (!createIfAbsent && !worldRegionsDirectory.isDirectory())
+                return null; // Don't create the directory on read-only operations
+            worldRegionsDirectory.mkdirs(); // Ensure directory exists
+            File regionFile = new File(worldRegionsDirectory, "mcmmo_" + rx + "_" + rz + "_.mcm");
+            if (!createIfAbsent && !regionFile.exists())
+                return null; // Don't create the file on read-only operations
+            return new McMMOSimpleRegionFile(regionFile, rx, rz);
+        });
     }
 
     private ChunkStore loadChunk(int cx, int cz, World world) {
@@ -100,10 +103,6 @@ public class HashChunkManager implements ChunkManager {
             chunkStore = readChunkStore(world, cx, cz);
         }
         catch (Exception ignored) {}
-
-        // Nothing on disk
-        if (chunkStore == null)
-            return null;
 
         return chunkStore;
     }
@@ -115,9 +114,8 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized void saveChunk(int cx, int cz, World world) {
-        if (world == null) {
+        if (world == null)
             return;
-        }
 
         ChunkKey key = toChunkKey(world, cx, cz);
 
@@ -134,18 +132,16 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized void chunkUnloaded(int cx, int cz, World world) {
-        if (world == null) {
+        if (world == null)
             return;
-        }
 
         unloadChunk(cx, cz, world);
     }
 
     @Override
     public synchronized void saveWorld(World world) {
-        if (world == null) {
+        if (world == null)
             return;
-        }
 
         closeAll();
         UUID wID = world.getUID();
@@ -165,9 +161,8 @@ public class HashChunkManager implements ChunkManager {
 
     @Override
     public synchronized void unloadWorld(World world) {
-        if (world == null) {
+        if (world == null)
             return;
-        }
 
         closeAll();
         UUID wID = world.getUID();
