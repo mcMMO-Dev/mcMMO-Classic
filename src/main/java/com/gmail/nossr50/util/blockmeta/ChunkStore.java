@@ -1,11 +1,13 @@
 package com.gmail.nossr50.util.blockmeta;
 
-import java.io.Serializable;
+import org.bukkit.World;
+
+import java.util.UUID;
 
 /**
  * A ChunkStore should be responsible for a 16x16xWorldHeight area of data
  */
-public interface ChunkStore extends Serializable {
+public interface ChunkStore {
     /**
      * Checks the chunk's save state
      *
@@ -33,6 +35,8 @@ public interface ChunkStore extends Serializable {
      * @return the chunk's z coordinate.
      */
     int getChunkZ();
+
+    UUID getWorldId();
 
     /**
      * Checks the value at the given coordinates

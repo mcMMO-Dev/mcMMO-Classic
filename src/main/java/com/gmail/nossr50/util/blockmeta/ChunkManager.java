@@ -4,16 +4,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-import java.io.IOException;
-
 public interface ChunkManager {
     void closeAll();
-
-    ChunkStore readChunkStore(World world, int x, int z) throws IOException;
-
-    void writeChunkStore(World world, int x, int z, ChunkStore data);
-
-    void closeChunkStore(World world, int x, int z);
 
     /**
      * Saves a given Chunk's Chunklet data
@@ -48,21 +40,9 @@ public interface ChunkManager {
     void unloadWorld(World world);
 
     /**
-     * Load all ChunkletStores from all loaded chunks from this world into memory
-     *
-     * @param world World to load
-     */
-    void loadWorld(World world);
-
-    /**
      * Save all ChunkletStores
      */
     void saveAll();
-
-    /**
-     * Unload all ChunkletStores after saving them
-     */
-    void unloadAll();
 
     /**
      * Check to see if a given location is set to true

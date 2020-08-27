@@ -1,6 +1,7 @@
 package com.gmail.nossr50.util.blockmeta;
 
 import com.gmail.nossr50.mcMMO;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -9,107 +10,87 @@ import java.io.*;
 import java.util.*;
 
 public class HashChunkManager implements ChunkManager {
-    private final HashMap<UUID, HashMap<Long, McMMOSimpleRegionFile>> regionFiles = new HashMap<>();
-    private final HashMap<ChunkKey, ChunkStore> store = new HashMap<>();
+    private final HashMap<CoordinateKey, McMMOSimpleRegionFile> regionMap = new HashMap<>();
+    private final HashMap<CoordinateKey, HashSet<CoordinateKey>> chunkUsageMap = new HashMap<>();
+    private final HashMap<CoordinateKey, ChunkStore> chunkMap = new HashMap<>();
 
     @Override
     public synchronized void closeAll() {
-        for (UUID uid : regionFiles.keySet()) {
-            HashMap<Long, McMMOSimpleRegionFile> worldRegions = regionFiles.get(uid);
-            for (Iterator<McMMOSimpleRegionFile> worldRegionIterator = worldRegions.values().iterator(); worldRegionIterator.hasNext(); ) {
-                McMMOSimpleRegionFile rf = worldRegionIterator.next();
-                if (rf != null) {
-                    rf.close();
-                    worldRegionIterator.remove();
-                }
-            }
+        for (ChunkStore chunkStore : chunkMap.values())
+        {
+            if (!chunkStore.isDirty())
+                continue;
+            writeChunkStore(Bukkit.getWorld(chunkStore.getWorldId()), chunkStore);
         }
-        regionFiles.clear();
+        chunkMap.clear();
+        chunkUsageMap.clear();
+        for (McMMOSimpleRegionFile rf : regionMap.values())
+            rf.close();
+        regionMap.clear();
     }
 
-    @Override
-    public synchronized ChunkStore readChunkStore(World world, int x, int z) throws IOException {
-        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z, false);
+    private synchronized ChunkStore readChunkStore(World world, int cx, int cz) throws IOException {
+        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, cx, cz, false);
         if (rf == null)
             return null;
-        try (InputStream in = rf.getInputStream(x, z)) {
+        try (DataInputStream in = rf.getInputStream(cx, cz)) {
             if (in == null)
                 return null;
-            try (ObjectInputStream objectStream = new RefactorObjectInputStream(in)) {
-                Object o = objectStream.readObject();
-                if (o instanceof ChunkStore) {
-                    return (ChunkStore) o;
-                }
-
-                throw new RuntimeException("Wrong class type read for chunk meta data for " + x + ", " + z);
-            } catch (IOException | ClassNotFoundException e) {
-                return null;
-            }
+            return BitSetChunkStore.Serialization.readChunkStore(in);
         }
     }
 
-    @Override
-    public synchronized void writeChunkStore(World world, int x, int z, ChunkStore data) {
+    private synchronized void writeChunkStore(World world, ChunkStore data) {
         if (!data.isDirty())
             return;
         try {
-            McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z, true);
-            try (ObjectOutputStream objectStream = new ObjectOutputStream(rf.getOutputStream(x, z))) {
-                objectStream.writeObject(data);
-                objectStream.flush();
+            McMMOSimpleRegionFile rf = getSimpleRegionFile(world, data.getChunkX(), data.getChunkZ(), true);
+            try (DataOutputStream out = rf.getOutputStream(data.getChunkX(), data.getChunkZ())) {
+                BitSetChunkStore.Serialization.writeChunkStore(out, data);
             }
             data.setDirty(false);
         }
         catch (IOException e) {
-            throw new RuntimeException("Unable to write chunk meta data for " + x + ", " + z, e);
+            throw new RuntimeException("Unable to write chunk meta data for " + data.getChunkX() + ", " + data.getChunkZ(), e);
         }
     }
 
-    @Override
-    public synchronized void closeChunkStore(World world, int x, int z) {
-        McMMOSimpleRegionFile rf = getSimpleRegionFile(world, x, z, false);
-        if (rf == null)
-            return;
-        rf.close();
-    }
+    private synchronized McMMOSimpleRegionFile getSimpleRegionFile(World world, int cx, int cz, boolean createIfAbsent) {
+        CoordinateKey regionKey = toRegionKey(world.getUID(), cx, cz);
 
-    private synchronized McMMOSimpleRegionFile getSimpleRegionFile(World world, int x, int z, boolean createIfAbsent) {
-        // Get map for this world.
-        HashMap<Long, McMMOSimpleRegionFile> worldRegions = regionFiles.computeIfAbsent(world.getUID(), k -> new HashMap<>());
-
-        // Compute region index (32x32 chunk regions)
-        int rx = x >> 5;
-        int rz = z >> 5;
-
-        // Key  is just a 64bit number, upper 32 bits are rx, lower 32 bits are rz
-        long key2 = (((long) rx) << 32) | ((rz) & 0xFFFFFFFFL);
-
-        return worldRegions.computeIfAbsent(key2, k -> {
+        return regionMap.computeIfAbsent(regionKey, k -> {
             File worldRegionsDirectory = new File(world.getWorldFolder(), "mcmmo_regions");
             if (!createIfAbsent && !worldRegionsDirectory.isDirectory())
                 return null; // Don't create the directory on read-only operations
             worldRegionsDirectory.mkdirs(); // Ensure directory exists
-            File regionFile = new File(worldRegionsDirectory, "mcmmo_" + rx + "_" + rz + "_.mcm");
+            File regionFile = new File(worldRegionsDirectory, "mcmmo_" + regionKey.x + "_" + regionKey.z + "_.mcm");
             if (!createIfAbsent && !regionFile.exists())
                 return null; // Don't create the file on read-only operations
-            return new McMMOSimpleRegionFile(regionFile, rx, rz);
+            return new McMMOSimpleRegionFile(regionFile, regionKey.x, regionKey.z);
         });
     }
 
     private ChunkStore loadChunk(int cx, int cz, World world) {
-        ChunkStore chunkStore = null;
-
         try {
-            chunkStore = readChunkStore(world, cx, cz);
+            return readChunkStore(world, cx, cz);
         }
         catch (Exception ignored) {}
 
-        return chunkStore;
+        return null;
     }
 
-    public void unloadChunk(int cx, int cz, World world) {
+    private void unloadChunk(int cx, int cz, World world) {
         saveChunk(cx, cz, world);
-        store.remove(toChunkKey(world, cx, cz));
+        CoordinateKey chunkKey = toChunkKey(world.getUID(), cx, cz);
+        CoordinateKey regionKey = toRegionKey(world.getUID(), cx, cz);
+        chunkMap.remove(chunkKey);
+        HashSet<CoordinateKey> chunkKeys = chunkUsageMap.get(regionKey);
+        chunkKeys.remove(chunkKey);
+        if (chunkKeys.isEmpty())
+        {
+            chunkUsageMap.remove(regionKey);
+            regionMap.remove(regionKey).close();
+        }
     }
 
     @Override
@@ -117,9 +98,9 @@ public class HashChunkManager implements ChunkManager {
         if (world == null)
             return;
 
-        ChunkKey key = toChunkKey(world, cx, cz);
+        CoordinateKey key = toChunkKey(world.getUID(), cx, cz);
 
-        ChunkStore out = store.get(key);
+        ChunkStore out = chunkMap.get(key);
 
         if (out == null)
             return;
@@ -127,7 +108,7 @@ public class HashChunkManager implements ChunkManager {
         if (!out.isDirty())
             return;
 
-        writeChunkStore(world, cx, cz, out);
+        writeChunkStore(world, out);
     }
 
     @Override
@@ -143,19 +124,17 @@ public class HashChunkManager implements ChunkManager {
         if (world == null)
             return;
 
-        closeAll();
         UUID wID = world.getUID();
 
-        List<ChunkKey> keys = new ArrayList<>(store.keySet());
-        for (ChunkKey key : keys) {
-            if (wID.equals(key.worldID)) {
-                try {
-                    saveChunk(key.cx, key.cz, world);
-                }
-                catch (Exception e) {
-                    // Ignore
-                }
+        for (ChunkStore chunkStore : chunkMap.values()) {
+            if (!chunkStore.isDirty())
+                continue;
+            if (!wID.equals(chunkStore.getWorldId()))
+                continue;
+            try {
+                writeChunkStore(world, chunkStore);
             }
+            catch (Exception ignore) { }
         }
     }
 
@@ -164,40 +143,33 @@ public class HashChunkManager implements ChunkManager {
         if (world == null)
             return;
 
-        closeAll();
         UUID wID = world.getUID();
 
-        List<ChunkKey> keys = new ArrayList<>(store.keySet());
-        for (ChunkKey key : keys) {
-            if (wID.equals(key.worldID)) {
-                try {
-                    unloadChunk(key.cx, key.cz, world);
-                }
-                catch (Exception e) {
-                    // Ignore
-                }
+        List<CoordinateKey> chunkKeys = new ArrayList<>(chunkMap.keySet());
+        for (CoordinateKey chunkKey : chunkKeys) {
+            if (!wID.equals(chunkKey.worldID))
+                continue;
+            ChunkStore chunkStore = chunkMap.remove(chunkKey);
+            if (!chunkStore.isDirty())
+                continue;
+            try {
+                writeChunkStore(world, chunkStore);
             }
+            catch (Exception ignore) { }
+        }
+        List<CoordinateKey> regionKeys = new ArrayList<>(regionMap.keySet());
+        for (CoordinateKey regionKey : regionKeys) {
+            if (!wID.equals(regionKey.worldID))
+                continue;
+            regionMap.remove(regionKey).close();
+            chunkUsageMap.remove(regionKey);
         }
     }
-
-    @Override
-    public synchronized void loadWorld(World world) {}
 
     @Override
     public synchronized void saveAll() {
-        closeAll();
-
         for (World world : mcMMO.p.getServer().getWorlds()) {
             saveWorld(world);
-        }
-    }
-
-    @Override
-    public synchronized void unloadAll() {
-        closeAll();
-
-        for (World world : mcMMO.p.getServer().getWorlds()) {
-            unloadWorld(world);
         }
     }
 
@@ -206,13 +178,10 @@ public class HashChunkManager implements ChunkManager {
         if (world == null)
             return false;
 
-        int cx = x >> 4;
-        int cz = z >> 4;
-
-        ChunkKey key = toChunkKey(world, cx, cz);
+        CoordinateKey chunkKey = blockCoordinateToChunkKey(world.getUID(), x, y, z);
 
         // Get chunk, load from file if necessary
-        ChunkStore check = store.computeIfAbsent(key, k -> loadChunk(cx, cz, world));
+        ChunkStore check = chunkMap.computeIfAbsent(chunkKey, k -> loadChunk(chunkKey.x, chunkKey.z, world));
 
         // No chunk, return false
         if (check == null)
@@ -286,23 +255,21 @@ public class HashChunkManager implements ChunkManager {
         if (world == null)
             return;
 
-        // Bitshift to chunk coordinate
-        int cx = x >> 4;
-        int cz = z >> 4;
-
-        ChunkKey key = toChunkKey(world, cx, cz);
+        CoordinateKey chunkKey = blockCoordinateToChunkKey(world.getUID(), x, y, z);
 
         // Get/Load/Create chunkstore
-        ChunkStore cStore = store.computeIfAbsent(key, k -> {
+        ChunkStore cStore = chunkMap.computeIfAbsent(chunkKey, k -> {
             // Load from file
-            ChunkStore loaded = loadChunk(cx, cz, world);
+            ChunkStore loaded = loadChunk(chunkKey.x, chunkKey.z, world);
             if (loaded != null)
                 return loaded;
             // If setting to false, no need to create an empty chunkstore
             if (!value)
                 return null;
+            // Mark chunk in-use for region tracking
+            chunkUsageMap.computeIfAbsent(toRegionKey(chunkKey.worldID, chunkKey.x, chunkKey.z), j -> new HashSet<>()).add(chunkKey);
             // Create a new chunkstore
-            return ChunkStoreFactory.getChunkStore(world, cx, cz);
+            return new BitSetChunkStore(world, chunkKey.x, chunkKey.z);
         });
 
         // Indicates setting false on empty chunkstore
@@ -317,40 +284,48 @@ public class HashChunkManager implements ChunkManager {
         cStore.set(ix, y, iz, value);
     }
 
-    private ChunkKey toChunkKey(World world, int cx, int cz){
-        return new ChunkKey(world.getUID(), cx, cz);
+    private CoordinateKey blockCoordinateToChunkKey(UUID worldUid, int x, int y, int z) {
+        return toChunkKey(worldUid, x >> 4, z >> 4);
     }
 
-    // Chunk Key class
-    private static final class ChunkKey {
-        public final UUID worldID;
-        public final int cx;
-        public final int cz;
+    private CoordinateKey toChunkKey(UUID worldUid, int cx, int cz){
+        return new CoordinateKey(worldUid, cx, cz);
+    }
 
-        private ChunkKey(UUID worldID, int cx, int cz) {
+    private CoordinateKey toRegionKey(UUID worldUid, int cx, int cz) {
+        // Compute region index (32x32 chunk regions)
+        int rx = cx >> 5;
+        int rz = cz >> 5;
+        return new CoordinateKey(worldUid, rx, rz);
+    }
+
+    private static final class CoordinateKey {
+        public final UUID worldID;
+        public final int x;
+        public final int z;
+
+        private CoordinateKey(UUID worldID, int x, int z) {
             this.worldID = worldID;
-            this.cx = cx;
-            this.cz = cz;
+            this.x = x;
+            this.z = z;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            CoordinateKey coordinateKey = (CoordinateKey) o;
+            return x == coordinateKey.x &&
+                    z == coordinateKey.z &&
+                    worldID.equals(coordinateKey.worldID);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(worldID, x, z);
         }
     }
 
     @Override
     public synchronized void cleanUp() {}
-
-    // Handles loading the old serialized classes even though we have changed name/package
-    private static class RefactorObjectInputStream extends ObjectInputStream {
-        public RefactorObjectInputStream(InputStream in) throws IOException {
-            super(in);
-            enableResolveObject(true);
-        }
-
-        @Override
-        protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
-            ObjectStreamClass read = super.readClassDescriptor();
-            if (read.getName().contentEquals("com.gmail.nossr50.util.blockmeta.chunkmeta.PrimitiveChunkStore")){
-                return ObjectStreamClass.lookup(BitSetChunkStore.class);
-            }
-            return read;
-        }
-    }
 }

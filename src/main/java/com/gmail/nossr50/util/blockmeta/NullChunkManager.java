@@ -4,23 +4,10 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 
-import java.io.IOException;
-
 public class NullChunkManager implements ChunkManager {
 
     @Override
     public void closeAll() {}
-
-    @Override
-    public ChunkStore readChunkStore(World world, int x, int z) throws IOException {
-        return null;
-    }
-
-    @Override
-    public void writeChunkStore(World world, int x, int z, ChunkStore data) {}
-
-    @Override
-    public void closeChunkStore(World world, int x, int z) {}
 
     @Override
     public void saveChunk(int cx, int cz, World world) {}
@@ -35,13 +22,7 @@ public class NullChunkManager implements ChunkManager {
     public void unloadWorld(World world) {}
 
     @Override
-    public void loadWorld(World world) {}
-
-    @Override
     public void saveAll() {}
-
-    @Override
-    public void unloadAll() {}
 
     @Override
     public boolean isTrue(int x, int y, int z, World world) {

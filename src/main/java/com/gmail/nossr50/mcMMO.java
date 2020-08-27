@@ -210,8 +210,8 @@ public class mcMMO extends JavaPlugin {
             ScoreboardManager.teardownAll();
             formulaManager.saveFormula();
             holidayManager.saveAnniversaryFiles();
-            placeStore.saveAll();       // Save our metadata
             placeStore.cleanUp();       // Cleanup empty metadata stores
+            placeStore.closeAll();      // Close all file handles
         }
         catch (NullPointerException e) {}
 

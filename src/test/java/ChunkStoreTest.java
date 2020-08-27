@@ -2,6 +2,7 @@ import com.gmail.nossr50.util.blockmeta.BitSetChunkStore;
 import com.gmail.nossr50.util.blockmeta.ChunkStore;
 import com.gmail.nossr50.util.blockmeta.HashChunkManager;
 import com.gmail.nossr50.util.blockmeta.McMMOSimpleRegionFile;
+import com.google.common.io.Files;
 import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
@@ -27,33 +28,35 @@ import static org.mockito.Mockito.mock;
 @PrepareForTest(Bukkit.class)
 public class ChunkStoreTest {
     @Test
-    public void testRoundTrip() {
+    public void testRoundTrip() throws IOException {
         Random random = new Random(1000);
 
         World world = mockBukkitWorld();
 
-        ChunkStore original = new BitSetChunkStore(world, random.nextInt(1000)- 500, random.nextInt(1000) - 500);
+        BitSetChunkStore original = new BitSetChunkStore(world, random.nextInt(1000)- 500, random.nextInt(1000) - 500);
         populateChunkstore(original, random);
-        byte[] serializedBytes = SerializationUtils.serialize(original);
-        ChunkStore deserialized = (BitSetChunkStore)SerializationUtils.deserialize(serializedBytes);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        BitSetChunkStore.Serialization.writeChunkStore(new DataOutputStream(byteArrayOutputStream), original);
+        byte[] serializedBytes = byteArrayOutputStream.toByteArray();
+        ChunkStore deserialized = BitSetChunkStore.Serialization.readChunkStore(new DataInputStream(new ByteArrayInputStream(serializedBytes)));
         assertEqual(original, deserialized);
     }
 
     @Test
-    public void testUpgrade() {
+    public void testUpgrade() throws IOException {
         Random random = new Random(1000);
 
         World world = mockBukkitWorld();
 
-        ChunkStore original = new LegacyChunkStore(world, random.nextInt(1000) - 500, random.nextInt(1000) - 500);
+        LegacyChunkStore original = new LegacyChunkStore(world, random.nextInt(1000) - 500, random.nextInt(1000) - 500);
         populateChunkstore(original, random);
         byte[] serializedBytes = SerializationUtils.serialize(original);
-        ChunkStore deserialized = (BitSetChunkStore)deserialize(new ByteArrayInputStream(serializedBytes));
+        ChunkStore deserialized = new UnitTestObjectInputStream(new ByteArrayInputStream(serializedBytes)).readLegacyChunkStore();
         assertEqual(original, deserialized);
     }
 
     @Test
-    public void testSimpleRegionFileRoundTrip() throws IOException, ClassNotFoundException {
+    public void testSimpleRegionFileRoundTrip() throws IOException {
         Random random = new Random(1000);
 
         World world = mockBukkitWorld();
@@ -63,30 +66,34 @@ public class ChunkStoreTest {
         {
             McMMOSimpleRegionFile region = new McMMOSimpleRegionFile(file, 0, 0);
             List<ChunkStore> chunks = new ArrayList<>();
-            for (int cx = 0; cx < 32; cx++)
+            for (int cx = 0; cx < 32; cx++) {
                 for (int cz = 0; cz < 32; cz++) {
-                    ChunkStore chunk = new BitSetChunkStore(world, cx, cz);
+                    ChunkStore chunk = random.nextBoolean() ? new BitSetChunkStore(world, cx, cz) : new LegacyChunkStore(world, cx, cz);
                     populateChunkstore(chunk, random);
                     chunks.add(chunk);
                 }
+            }
             for (ChunkStore chunk : chunks)
             {
-                try (ObjectOutputStream objectStream = new ObjectOutputStream(region.getOutputStream(chunk.getChunkX(), chunk.getChunkZ()))) {
-                    objectStream.writeObject(chunk);
-                    objectStream.flush();
+                try (DataOutputStream out = region.getOutputStream(chunk.getChunkX(), chunk.getChunkZ()))
+                {
+                    if (chunk instanceof BitSetChunkStore)
+                        BitSetChunkStore.Serialization.writeChunkStore(out, chunk);
+                    else
+                        SerializationUtils.serialize((LegacyChunkStore)chunk, out);
                 }
             }
+
             region.close();
             region = new McMMOSimpleRegionFile(file, 0, 0);
             for (ChunkStore original : chunks)
             {
-                InputStream is = region.getInputStream(original.getChunkX(), original.getChunkZ());
-                Assert.assertNotNull(is);
-                ChunkStore deserialized;
-                try (ObjectInputStream objectStream = new ObjectInputStream(is)) {
-                    deserialized = (ChunkStore)objectStream.readObject();
+                try (DataInputStream is = region.getInputStream(original.getChunkX(), original.getChunkZ()))
+                {
+                    Assert.assertNotNull(is);
+                    ChunkStore deserialized = BitSetChunkStore.Serialization.readChunkStore(is);
+                    assertEqual(original, deserialized);
                 }
-                assertEqual(original, deserialized);
             }
             region.close();
         }
@@ -94,6 +101,20 @@ public class ChunkStoreTest {
         {
             file.delete();
         }
+    }
+
+    @Test
+    public void testHashChunkManager(){
+        Random random = new Random(1000);
+
+        World world = mockBukkitWorld();
+
+        HashChunkManager chunkManager = new HashChunkManager();
+        for (int i = 0; i < random.nextInt(16 * 16 * 256); i++)
+            chunkManager.setTrue(random.nextInt(16), random.nextInt(256), random.nextInt(16), world);
+        chunkManager.chunkUnloaded(0, 0, world);
+
+        chunkManager.saveWorld(world);
     }
 
     private void populateChunkstore(ChunkStore chunkStore, Random random)
@@ -108,6 +129,7 @@ public class ChunkStoreTest {
         World world = mock(World.class);
         Mockito.when(world.getUID()).thenReturn(worldUUID);
         Mockito.when(world.getMaxHeight()).thenReturn(256);
+        Mockito.when(world.getWorldFolder()).thenReturn(Files.createTempDir());
         PowerMockito.mockStatic(Bukkit.class);
         BDDMockito.given(Bukkit.getWorld(worldUUID)).willReturn(world);
 
@@ -122,35 +144,7 @@ public class ChunkStoreTest {
                     Assert.assertEquals(expected.isTrue(x, y, z), actual.isTrue(x, y, z));
     }
 
-    public static Object deserialize(ByteArrayInputStream inputStream) {
-        if (inputStream == null) {
-            throw new IllegalArgumentException("The InputStream must not be null");
-        } else {
-            UnitTestObjectInputStream in = null;
-
-            Object var2;
-            try {
-                in = new UnitTestObjectInputStream(inputStream);
-                var2 = in.readObject();
-            } catch (ClassNotFoundException var12) {
-                throw new SerializationException(var12);
-            } catch (IOException var13) {
-                throw new SerializationException(var13);
-            } finally {
-                try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException var11) {
-                }
-
-            }
-
-            return var2;
-        }
-    }
-
-    public static class LegacyChunkStore implements ChunkStore {
+    public static class LegacyChunkStore implements ChunkStore, Serializable {
         private static final long serialVersionUID = -1L;
         transient private boolean dirty = false;
         public boolean[][][] store;
@@ -185,6 +179,11 @@ public class ChunkStoreTest {
         @Override
         public int getChunkZ() {
             return cz;
+        }
+
+        @Override
+        public UUID getWorldId() {
+            return worldUid;
         }
 
         @Override
@@ -295,6 +294,14 @@ public class ChunkStoreTest {
                 return ObjectStreamClass.lookup(BitSetChunkStore.class);
             }
             return read;
+        }
+
+        public ChunkStore readLegacyChunkStore(){
+            try {
+                return (ChunkStore) readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                return null;
+            }
         }
     }
 }
