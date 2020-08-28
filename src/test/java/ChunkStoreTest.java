@@ -3,7 +3,6 @@ import com.gmail.nossr50.util.blockmeta.ChunkStore;
 import com.gmail.nossr50.util.blockmeta.HashChunkManager;
 import com.gmail.nossr50.util.blockmeta.McMMOSimpleRegionFile;
 import com.google.common.io.Files;
-import org.apache.commons.lang.SerializationException;
 import org.apache.commons.lang.SerializationUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -24,6 +23,9 @@ import java.util.UUID;
 
 import static org.mockito.Mockito.mock;
 
+/**
+ * Could be alot better.  But some tests are better than none!  Tests the major things, still kinda unit-testy.  Verifies that the serialization isn't completely broken.
+ */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Bukkit.class)
 public class ChunkStoreTest {

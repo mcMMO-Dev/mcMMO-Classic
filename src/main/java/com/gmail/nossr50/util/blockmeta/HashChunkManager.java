@@ -10,20 +10,23 @@ import java.io.*;
 import java.util.*;
 
 public class HashChunkManager implements ChunkManager {
-    private final HashMap<CoordinateKey, McMMOSimpleRegionFile> regionMap = new HashMap<>();
-    private final HashMap<CoordinateKey, HashSet<CoordinateKey>> chunkUsageMap = new HashMap<>();
-    private final HashMap<CoordinateKey, ChunkStore> chunkMap = new HashMap<>();
+    private final HashMap<CoordinateKey, McMMOSimpleRegionFile> regionMap = new HashMap<>(); // Tracks active regions
+    private final HashMap<CoordinateKey, HashSet<CoordinateKey>> chunkUsageMap = new HashMap<>(); // Tracks active chunks by region
+    private final HashMap<CoordinateKey, ChunkStore> chunkMap = new HashMap<>(); // Tracks active chunks
 
     @Override
     public synchronized void closeAll() {
+        // Save all dirty chunkstores
         for (ChunkStore chunkStore : chunkMap.values())
         {
             if (!chunkStore.isDirty())
                 continue;
             writeChunkStore(Bukkit.getWorld(chunkStore.getWorldId()), chunkStore);
         }
+        // Clear in memory chunks
         chunkMap.clear();
         chunkUsageMap.clear();
+        // Close all region files
         for (McMMOSimpleRegionFile rf : regionMap.values())
             rf.close();
         regionMap.clear();
@@ -32,17 +35,17 @@ public class HashChunkManager implements ChunkManager {
     private synchronized ChunkStore readChunkStore(World world, int cx, int cz) throws IOException {
         McMMOSimpleRegionFile rf = getSimpleRegionFile(world, cx, cz, false);
         if (rf == null)
-            return null;
-        try (DataInputStream in = rf.getInputStream(cx, cz)) {
+            return null; // If there is no region file, there can't be a chunk
+        try (DataInputStream in = rf.getInputStream(cx, cz)) { // Get input stream for chunk
             if (in == null)
-                return null;
-            return BitSetChunkStore.Serialization.readChunkStore(in);
+                return null; // No chunk
+            return BitSetChunkStore.Serialization.readChunkStore(in); // Read in the chunkstore
         }
     }
 
     private synchronized void writeChunkStore(World world, ChunkStore data) {
         if (!data.isDirty())
-            return;
+            return; // Don't save unchanged data
         try {
             McMMOSimpleRegionFile rf = getSimpleRegionFile(world, data.getChunkX(), data.getChunkZ(), true);
             try (DataOutputStream out = rf.getOutputStream(data.getChunkX(), data.getChunkZ())) {
@@ -80,13 +83,13 @@ public class HashChunkManager implements ChunkManager {
     }
 
     private void unloadChunk(int cx, int cz, World world) {
-        saveChunk(cx, cz, world);
+        saveChunk(cx, cz, world); // Save the chunk
         CoordinateKey chunkKey = toChunkKey(world.getUID(), cx, cz);
         CoordinateKey regionKey = toRegionKey(world.getUID(), cx, cz);
-        chunkMap.remove(chunkKey);
+        chunkMap.remove(chunkKey); // Remove from chunk map
         HashSet<CoordinateKey> chunkKeys = chunkUsageMap.get(regionKey);
-        chunkKeys.remove(chunkKey);
-        if (chunkKeys.isEmpty())
+        chunkKeys.remove(chunkKey); // remove from region file in-use set
+        if (chunkKeys.isEmpty()) // If it was last chunk in region, close the region file and remove it from memory
         {
             chunkUsageMap.remove(regionKey);
             regionMap.remove(regionKey).close();
@@ -98,9 +101,9 @@ public class HashChunkManager implements ChunkManager {
         if (world == null)
             return;
 
-        CoordinateKey key = toChunkKey(world.getUID(), cx, cz);
+        CoordinateKey chunkKey = toChunkKey(world.getUID(), cx, cz);
 
-        ChunkStore out = chunkMap.get(key);
+        ChunkStore out = chunkMap.get(chunkKey);
 
         if (out == null)
             return;
@@ -126,6 +129,7 @@ public class HashChunkManager implements ChunkManager {
 
         UUID wID = world.getUID();
 
+        // Save all teh chunks
         for (ChunkStore chunkStore : chunkMap.values()) {
             if (!chunkStore.isDirty())
                 continue;
@@ -145,6 +149,7 @@ public class HashChunkManager implements ChunkManager {
 
         UUID wID = world.getUID();
 
+        // Save and remove all the chunks
         List<CoordinateKey> chunkKeys = new ArrayList<>(chunkMap.keySet());
         for (CoordinateKey chunkKey : chunkKeys) {
             if (!wID.equals(chunkKey.worldID))
@@ -157,6 +162,7 @@ public class HashChunkManager implements ChunkManager {
             }
             catch (Exception ignore) { }
         }
+        // Clear all the region files
         List<CoordinateKey> regionKeys = new ArrayList<>(regionMap.keySet());
         for (CoordinateKey regionKey : regionKeys) {
             if (!wID.equals(regionKey.worldID))
@@ -223,7 +229,7 @@ public class HashChunkManager implements ChunkManager {
     }
 
     @Override
-    public void setTrue(BlockState blockState) {
+    public synchronized void setTrue(BlockState blockState) {
         if (blockState == null)
             return;
 

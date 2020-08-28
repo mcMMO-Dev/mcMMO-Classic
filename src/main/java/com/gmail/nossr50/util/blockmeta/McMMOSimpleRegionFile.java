@@ -24,15 +24,32 @@ import java.util.BitSet;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+/**
+ * File format:
+ * bytes 0-4096 contain 1024 integer values representing the segment index of each chunk
+ * bytes 4096-8192 contain 1024 integer values representing the byte length of each chunk
+ * bytes 8192-8196 is the integer value of the segment exponent
+ * bytes 8196-12288 are reserved for future use
+ * bytes 12288+ contain the data segments, by default 1024 byte segments.
+ * Chunk data is compressed and stored in 1 or more segments as needed.
+ */
 public class McMMOSimpleRegionFile {
-    private static final int DEFAULT_SEGMENT_EXPONENT = 10; // Segments are 2^10 bytes long. (1024)  TODO, analyze real world usage and determine if a smaller segment(512) is worth it or not. (need to know average chunkstore bytesize)
+    private static final int DEFAULT_SEGMENT_EXPONENT = 10; // TODO, analyze real world usage and determine if a smaller segment(512) is worth it or not. (need to know average chunkstore bytesize)
+    private static final int DEFAULT_SEGMENT_SIZE = (int)Math.pow(2, DEFAULT_SEGMENT_EXPONENT); // 1024
+    private static final int RESERVED_HEADER_BYTES = 12288; // This needs to be divisible by segment size
+    private static final int NUM_CHUNKS = 1024; // 32x32
+    private static final int SEEK_CHUNK_SEGMENT_INDICES = 0;
+    private static final int SEEK_CHUNK_BYTE_LENGTHS = 4096;
+    private static final int SEEK_FILE_INFO = 8192;
     // Chunk info
-    private final int[] chunkSegmentIndex = new int[1024];
-    private final int[] chunkNumBytes = new int[1024];
-    private final int[] chunkNumSegments = new int[1024];
+    private final int[] chunkSegmentIndex = new int[NUM_CHUNKS];
+    private final int[] chunkNumBytes = new int[NUM_CHUNKS];
+    private final int[] chunkNumSegments = new int[NUM_CHUNKS];
 
     // Segments
-    private final BitSet segments = new BitSet();
+    private final BitSet segments = new BitSet(); // Used to denote which segments are in use or not
+
+    // Segment size/mask
     private final int segmentExponent;
     private final int segmentMask;
 
@@ -54,30 +71,29 @@ public class McMMOSimpleRegionFile {
             this.file = new RandomAccessFile(parent, "rw");
 
             // New file, write out header bytes
-            if (file.length() < 4096 * 3) {
-                for (int i = 0; i < 1024 * 3; i++)
-                    file.writeInt(0);
-                file.seek(4096 * 2);
+            if (file.length() < RESERVED_HEADER_BYTES) {
+                file.write(new byte[RESERVED_HEADER_BYTES]);
+                file.seek(SEEK_FILE_INFO);
                 file.writeInt(DEFAULT_SEGMENT_EXPONENT);
             }
 
-            file.seek(4096 * 2);
-
+            file.seek(SEEK_FILE_INFO);
             this.segmentExponent = file.readInt();
             this.segmentMask = (1 << segmentExponent) - 1;
 
-            int reservedSegments = this.sizeToSegments(4096 * 3);
-            segments.flip(0, reservedSegments);
+            // Mark reserved segments reserved
+            int reservedSegments = this.bytesToSegments(RESERVED_HEADER_BYTES);
+            segments.set(0, reservedSegments, true);
 
-            // Read in FAT header data
-            file.seek(0);
-
-            for (int i = 0; i < 1024; i++)
+            // Read chunk header data
+            file.seek(SEEK_CHUNK_SEGMENT_INDICES);
+            for (int i = 0; i < NUM_CHUNKS; i++)
                 chunkSegmentIndex[i] = file.readInt();
 
-            for (int i = 0; i < 1024; i++) {
+            file.seek(SEEK_CHUNK_BYTE_LENGTHS);
+            for (int i = 0; i < NUM_CHUNKS; i++) {
                 chunkNumBytes[i] = file.readInt();
-                chunkNumSegments[i] = sizeToSegments(chunkNumBytes[i]);
+                chunkNumSegments[i] = bytesToSegments(chunkNumBytes[i]);
                 markChunkSegments(i, true);
             }
 
@@ -98,7 +114,7 @@ public class McMMOSimpleRegionFile {
         final int index;
 
         McMMOSimpleChunkBuffer(McMMOSimpleRegionFile rf, int index) {
-            super(1024);
+            super(DEFAULT_SEGMENT_SIZE);
             this.rf = rf;
             this.index = index;
         }
@@ -110,19 +126,22 @@ public class McMMOSimpleRegionFile {
     }
 
     private synchronized void write(int index, byte[] buffer, int size) throws IOException {
-        int oldStart = chunkSegmentIndex[index]; // Get current segment index
+        int oldSegmentIndex = chunkSegmentIndex[index]; // Get current segment index
         markChunkSegments(index, false); // Clear our old segments
-        int start = findContiguousSegments(oldStart, size); // Find contiguous segments to save to
-        file.seek(start << segmentExponent); // Seek to file location
+        int newSegmentIndex = findContiguousSegments(oldSegmentIndex, size); // Find contiguous segments to save to
+        file.seek(newSegmentIndex << segmentExponent); // Seek to file location
         file.write(buffer, 0, size); // Write data
         // update in memory info
-        chunkSegmentIndex[index] = start;
+        chunkSegmentIndex[index] = newSegmentIndex;
         chunkNumBytes[index] = size;
-        chunkNumSegments[index] = sizeToSegments(size);
+        chunkNumSegments[index] = bytesToSegments(size);
         // Mark segments in use
         markChunkSegments(index, true);
-        // Write out updates header info
-        writeFATHeader();
+        // Update header info
+        file.seek(SEEK_CHUNK_SEGMENT_INDICES + (4 * index));
+        file.writeInt(chunkSegmentIndex[index]);
+        file.seek(SEEK_CHUNK_BYTE_LENGTHS + (4 * index));
+        file.writeInt(chunkNumBytes[index]);
     }
 
     public synchronized DataInputStream getInputStream(int x, int z) throws IOException {
@@ -180,7 +199,10 @@ public class McMMOSimpleRegionFile {
     }
 
     private synchronized int findContiguousSegments(int hint, int size) {
-        int segments = sizeToSegments(size); // Number of segments we need
+        if (size == 0)
+            return 0; // Zero byte data will not claim any chunks anyways
+
+        int segments = bytesToSegments(size); // Number of segments we need
 
         // Check the hinted location (previous location of chunk) most of the time we can fit where we were.
         boolean oldFree = true;
@@ -216,11 +238,11 @@ public class McMMOSimpleRegionFile {
         return start;
     }
 
-    private synchronized int sizeToSegments(int size) {
-        if (size <= 0)
+    private synchronized int bytesToSegments(int bytes) {
+        if (bytes <= 0)
             return 1;
 
-        return ((size - 1) >> segmentExponent) + 1; // ((Size - 1) / segmentSize) + 1
+        return ((bytes - 1) >> segmentExponent) + 1; // ((bytes - 1) / segmentSize) + 1
     }
 
     private synchronized int getChunkIndex(int x, int z) {
@@ -231,14 +253,5 @@ public class McMMOSimpleRegionFile {
         z = z & 0x1F; // 5 bits (mod 32)
 
         return (x << 5) + z; // x in the upper 5 bits, z in the lower 5 bits
-    }
-
-    private synchronized void writeFATHeader() throws IOException {
-        file.seek(0);
-        for (int i = 0; i < 1024; i++)
-            file.writeInt(chunkSegmentIndex[i]);
-
-        for (int i = 0; i < 1024; i++)
-            file.writeInt(chunkNumBytes[i]);
     }
 }
