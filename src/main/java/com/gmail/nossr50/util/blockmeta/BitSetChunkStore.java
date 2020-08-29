@@ -71,8 +71,6 @@ public class BitSetChunkStore implements ChunkStore, Serializable {
 
     @Override
     public void set(int x, int y, int z, boolean value) {
-        if (y >= worldHeight || y < 0)
-            return;
         store.set(coordToIndex(x, y, z), value);
         dirty = true;
     }
@@ -83,6 +81,8 @@ public class BitSetChunkStore implements ChunkStore, Serializable {
     }
 
     private int coordToIndex(int x, int y, int z) {
+        if (x < 0 || x >= 16 || y < 0 || y >= worldHeight || z < 0 || z >= 16)
+            throw new IndexOutOfBoundsException();
         return (z * 16 + x) + (256 * y);
     }
 

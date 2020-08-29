@@ -247,7 +247,7 @@ public class McMMOSimpleRegionFile {
 
     private synchronized int getChunkIndex(int x, int z) {
         if (rx != (x >> 5) || rz != (z >> 5))
-            throw new RuntimeException(x + ", " + z + " not in region " + rx + ", " + rz);
+            throw new IndexOutOfBoundsException();
 
         x = x & 0x1F; // 5 bits (mod 32)
         z = z & 0x1F; // 5 bits (mod 32)
