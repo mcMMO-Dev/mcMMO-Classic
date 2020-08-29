@@ -1,6 +1,4 @@
-import com.gmail.nossr50.util.blockmeta.BitSetChunkStore;
-import com.gmail.nossr50.util.blockmeta.ChunkStore;
-import com.gmail.nossr50.util.blockmeta.McMMOSimpleRegionFile;
+import com.gmail.nossr50.util.blockmeta.*;
 import com.google.common.io.Files;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -26,8 +24,6 @@ public class ChunkStoreTest {
     @BeforeClass
     public static void setUpClass() {
         tempDir = Files.createTempDir();
-
-
     }
 
     @AfterClass
@@ -132,6 +128,14 @@ public class ChunkStoreTest {
         assertThrows(() -> chunkStore.setTrue(0, 0, 16), IndexOutOfBoundsException.class);
     }
 
+    @Test
+    public void testRegressionChunkMirrorBug() {
+        ChunkManager chunkManager = new HashChunkManager();
+        chunkManager.setTrue(15,0,15, mockWorld);
+        chunkManager.setFalse(-15, 0, -15, mockWorld);
+        Assert.assertTrue(chunkManager.isTrue(15, 0, 15, mockWorld));
+    }
+
     private interface Delegate {
         void run();
     }
@@ -139,7 +143,7 @@ public class ChunkStoreTest {
     private void assertThrows(Delegate delegate, Class<?> clazz) {
         try {
             delegate.run();
-            Assert.fail();
+            Assert.fail(); // We didn't throw
         }
         catch (Throwable t) {
             Assert.assertTrue(t.getClass().equals(clazz));
@@ -171,7 +175,7 @@ public class ChunkStoreTest {
         if (chunkStore instanceof BitSetChunkStore)
             BitSetChunkStore.Serialization.writeChunkStore(new DataOutputStream(byteArrayOutputStream), chunkStore);
         else
-            new UnitTestObjectOutputStream(byteArrayOutputStream).writeObject(chunkStore);
+            new UnitTestObjectOutputStream(byteArrayOutputStream).writeObject(chunkStore); // Serializes the class as if it were the old PrimitiveChunkStore
         return byteArrayOutputStream.toByteArray();
     }
 
@@ -287,7 +291,7 @@ public class ChunkStoreTest {
         @Override
         public void writeUTF(String str) throws IOException {
             // Pretend to be the old class
-            if (str.equals("ChunkStoreTest$LegacyChunkStore"))
+            if (str.equals(LegacyChunkStore.class.getName()))
                 str = "com.gmail.nossr50.util.blockmeta.chunkmeta.PrimitiveChunkStore";
             super.writeUTF(str);
         }
