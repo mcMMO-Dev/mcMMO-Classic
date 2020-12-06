@@ -1,6 +1,7 @@
 package com.gmail.nossr50.skills.mining;
 
 import com.gmail.nossr50.config.Config;
+import com.gmail.nossr50.config.experience.ExperienceConfig;
 import com.gmail.nossr50.datatypes.player.McMMOPlayer;
 import com.gmail.nossr50.datatypes.skills.AbilityType;
 import com.gmail.nossr50.datatypes.skills.SecondaryAbility;
@@ -19,8 +20,10 @@ import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TNTPrimed;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -103,54 +106,48 @@ public class MiningManager extends SkillManager {
     /**
      * Handler for explosion drops and XP gain.
      *
-     * @param yield The % of blocks to drop
-     * @param blockList The list of blocks to drop
+     * @param event
      */
-    public void blastMiningDropProcessing(float yield, List<Block> blockList) {
-        List<BlockState> ores = new ArrayList<BlockState>();
-        List<BlockState> debris = new ArrayList<BlockState>();
+    public void blastMiningDropProcessing(EntityExplodeEvent event) {
         int xp = 0;
 
         float oreBonus = (float) (getOreBonus() / 100);
         float debrisReduction = (float) (getDebrisReduction() / 100);
         int dropMultiplier = getDropMultiplier();
 
-        float debrisYield = yield - debrisReduction;
+        float debrisYield = event.getYield() - debrisReduction;
 
-        for (Block block : blockList) {
+        for (Block block : event.blockList()) {
             BlockState blockState = block.getState();
 
+            if (!ExperienceConfig.getInstance().isSkillBlock(SkillType.MINING, blockState.getBlockData()))
+                continue;
+            if (blockState instanceof Container)
+                continue;
+            if (mcMMO.getPlaceStore().isTrue(block))
+                continue;
+
             if (BlockUtils.isOre(blockState)) {
-                ores.add(blockState);
-            }
-            else {
-                debris.add(blockState);
-            }
-        }
+                if (Misc.getRandom().nextFloat() < (event.getYield() + oreBonus)) {
+                    if (!mcMMO.getPlaceStore().isTrue(blockState)) {
+                        xp += Mining.getBlockXp(blockState);
+                    }
 
-        for (BlockState blockState : ores) {
-            if (Misc.getRandom().nextFloat() < (yield + oreBonus)) {
-                if (!mcMMO.getPlaceStore().isTrue(blockState)) {
-                    xp += Mining.getBlockXp(blockState);
-                }
+                    Misc.dropItem(Misc.getBlockCenter(blockState), new ItemStack(blockState.getType())); // Initial block that would have been dropped
 
-                Misc.dropItem(Misc.getBlockCenter(blockState), new ItemStack(blockState.getType())); // Initial block that would have been dropped
-
-                if (!mcMMO.getPlaceStore().isTrue(blockState)) {
                     for (int i = 1; i < dropMultiplier; i++) {
                         Mining.handleSilkTouchDrops(blockState); // Bonus drops - should drop the block & not the items
                     }
                 }
             }
-        }
-
-        if (debrisYield > 0) {
-            for (BlockState blockState : debris) {
+            else if (debrisYield > 0) {
                 if (Misc.getRandom().nextFloat() < debrisYield) {
                     Misc.dropItems(Misc.getBlockCenter(blockState), blockState.getBlock().getDrops());
                 }
             }
         }
+
+        event.setYield(0F);
 
         applyXpGain(xp, XPGainReason.PVE);
     }

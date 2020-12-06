@@ -520,26 +520,8 @@ public class EntityListener implements Listener {
         MiningManager miningManager = UserManager.getPlayer(player).getMiningManager();
 
         if (miningManager.canUseBlastMining()) {
-            miningManager.blastMiningDropProcessing(event.getYield(), event.blockList());
-            event.setYield(0);
+            miningManager.blastMiningDropProcessing(event);
         }
-    }
-
-    /**
-     * Handle EntityExplode events that involve modifying the event.
-     *
-     * @param event
-     *            The event to modify
-     */
-    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    public void onEntityExplodeMonitor(EntityExplodeEvent event) {
-        Entity entity = event.getEntity();
-
-        if (!(entity instanceof TNTPrimed) || !entity.hasMetadata(mcMMO.tntsafeMetadataKey)) {
-            return;
-        }
-
-        event.blockList().clear();
     }
 
     /**
