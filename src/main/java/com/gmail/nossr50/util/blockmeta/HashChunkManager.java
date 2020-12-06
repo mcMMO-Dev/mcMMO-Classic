@@ -83,10 +83,15 @@ public class HashChunkManager implements ChunkManager {
     }
 
     private void unloadChunk(int cx, int cz, World world) {
-        saveChunk(cx, cz, world); // Save the chunk
         CoordinateKey chunkKey = toChunkKey(world.getUID(), cx, cz);
+        ChunkStore chunkStore = chunkMap.remove(chunkKey); // Remove from chunk map
+        if (chunkStore == null)
+            return;
+
+        if (chunkStore.isDirty())
+            writeChunkStore(world, chunkStore);
+
         CoordinateKey regionKey = toRegionKey(world.getUID(), cx, cz);
-        chunkMap.remove(chunkKey); // Remove from chunk map
         HashSet<CoordinateKey> chunkKeys = chunkUsageMap.get(regionKey);
         chunkKeys.remove(chunkKey); // remove from region file in-use set
         if (chunkKeys.isEmpty()) // If it was last chunk in region, close the region file and remove it from memory
@@ -187,7 +192,16 @@ public class HashChunkManager implements ChunkManager {
         CoordinateKey chunkKey = blockCoordinateToChunkKey(world.getUID(), x, y, z);
 
         // Get chunk, load from file if necessary
-        ChunkStore check = chunkMap.computeIfAbsent(chunkKey, k -> loadChunk(chunkKey.x, chunkKey.z, world));
+        // Get/Load/Create chunkstore
+        ChunkStore check = chunkMap.computeIfAbsent(chunkKey, k -> {
+            // Load from file
+            ChunkStore loaded = loadChunk(chunkKey.x, chunkKey.z, world);
+            if (loaded == null)
+                return null;
+            // Mark chunk in-use for region tracking
+            chunkUsageMap.computeIfAbsent(toRegionKey(chunkKey.worldID, chunkKey.x, chunkKey.z), j -> new HashSet<>()).add(chunkKey);
+            return loaded;
+        });
 
         // No chunk, return false
         if (check == null)
@@ -268,7 +282,10 @@ public class HashChunkManager implements ChunkManager {
             // Load from file
             ChunkStore loaded = loadChunk(chunkKey.x, chunkKey.z, world);
             if (loaded != null)
+            {
+                chunkUsageMap.computeIfAbsent(toRegionKey(chunkKey.worldID, chunkKey.x, chunkKey.z), j -> new HashSet<>()).add(chunkKey);
                 return loaded;
+            }
             // If setting to false, no need to create an empty chunkstore
             if (!value)
                 return null;

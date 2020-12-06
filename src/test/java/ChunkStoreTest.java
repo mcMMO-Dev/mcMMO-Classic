@@ -73,6 +73,15 @@ public class ChunkStoreTest {
     }
 
     @Test
+    public void testChunkCoords() throws IOException {
+        for (int x = -96; x < 0; x++) {
+                int cx = x >> 4;
+                int ix = Math.abs(x) % 16;
+                System.out.print(cx + ":" + ix + "  ");
+        }
+    }
+
+    @Test
     public void testUpgrade() throws IOException {
         LegacyChunkStore original = new LegacyChunkStore(mockWorld, 12, 32);
         original.setTrue(14, 89, 12);
