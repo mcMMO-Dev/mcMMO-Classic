@@ -101,30 +101,35 @@ public class EntityListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityChangeBlock(EntityChangeBlockEvent event) {
         Block block = event.getBlock();
+        Entity entity = event.getEntity();
+        Material notYetReplacedType = block.getState().getType(); //because its from getState() this is the block that hasn't been changed yet, which is likely air/lava/water etc
 
         // When the event is fired for the falling block that changes back to a
         // normal block
         // event.getBlock().getType() returns AIR
         if (!BlockUtils.shouldBeWatched(block.getState())
-                && block.getType() != Material.AIR
-                && block.getType() != Material.WATER) {
+                && notYetReplacedType != Material.WATER && notYetReplacedType != Material.LAVA
+                && block.getType() != Material.AIR && block.getType() != Material.CAVE_AIR) {
             return;
         }
+        //I could just have it mark all blocks after this but it would potentially cause some really edge case consistency issues that no one would notice
 
-        Entity entity = event.getEntity();
-
+        /*
+         * This mess of code tries to avoid marking the moved block as true in our place store
+         * It's a headache to read but it works, I'm tempted to just remove it
+         */
         if (entity instanceof FallingBlock || entity instanceof Enderman) {
             boolean isTracked = entity.hasMetadata(mcMMO.entityMetadataKey);
 
             if (mcMMO.getPlaceStore().isTrue(block) && !isTracked) {
                 mcMMO.getPlaceStore().setFalse(block);
+
                 entity.setMetadata(mcMMO.entityMetadataKey, mcMMO.metadataValue);
             }
             else if (isTracked) {
                 mcMMO.getPlaceStore().setTrue(block);
             }
         } else if ((block.getType() == Material.REDSTONE_ORE)) {
-            return;
         }
         else {
             if (mcMMO.getPlaceStore().isTrue(block)) {
