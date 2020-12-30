@@ -487,14 +487,14 @@ public class PlayerListener implements Listener {
                             player.updateInventory();
                         }
                     }
-                }
-                /* BLAST MINING CHECK */
-                else if (miningManager.canDetonate()) {
-                    if (type == Material.TNT) {
-                        event.setCancelled(true); // Don't detonate the TNT if they're too close
-                    }
-                    else {
-                        miningManager.remoteDetonation();
+                    /* BLAST MINING CHECK */
+                    else if (miningManager.canDetonate()) {
+                        if (type == Material.TNT) {
+                            event.setCancelled(true); // Don't detonate the TNT if they're too close
+                        }
+                        else {
+                            miningManager.remoteDetonation();
+                        }
                     }
                 }
 

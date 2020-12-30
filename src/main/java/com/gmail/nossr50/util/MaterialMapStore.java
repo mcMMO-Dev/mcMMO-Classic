@@ -757,6 +757,7 @@ public class MaterialMapStore {
         abilityBlackList.add("composter");
         abilityBlackList.add("lodestone");
         abilityBlackList.add("respawn_anchor");
+        abilityBlackList.add("smithing_table");
     }
 
     private void filltoolBlackList()
