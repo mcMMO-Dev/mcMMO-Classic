@@ -22,6 +22,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 public class UnarmedManager extends SkillManager {
     public UnarmedManager(McMMOPlayer mcMMOPlayer) {
@@ -89,13 +90,31 @@ public class UnarmedManager extends SkillManager {
                 return;
             }
 
-            Item item = Misc.dropItem(defender.getLocation(), defender.getInventory().getItemInMainHand());
+            PlayerInventory inventory = defender.getInventory();
 
-            if (item != null && AdvancedConfig.getInstance().getDisarmProtected()) {
-                item.setMetadata(mcMMO.disarmedItemKey, UserManager.getPlayer(defender).getPlayerMetadata());
+            boolean handled = false;
+            if (AdvancedConfig.getInstance().getDisarmUnEquipIfPossible())
+            {
+                for (int i = 9; i < 35; i++)
+                {
+                    ItemStack item = inventory.getItem(i);
+                    if (item != null && item.getType() != Material.AIR)
+                        continue;
+                    inventory.setItem(i, defender.getInventory().getItemInMainHand());
+                    handled = true;
+                    break;
+                }
+            }
+            if (!handled)
+            {
+                Item item = Misc.dropItem(defender.getLocation(), inventory.getItemInMainHand());
+
+                if (item != null && AdvancedConfig.getInstance().getDisarmProtected()) {
+                    item.setMetadata(mcMMO.disarmedItemKey, UserManager.getPlayer(defender).getPlayerMetadata());
+                }
             }
 
-            defender.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+            inventory.setItemInMainHand(new ItemStack(Material.AIR));
             defender.sendMessage(LocaleLoader.getString("Skills.Disarmed"));
         }
     }

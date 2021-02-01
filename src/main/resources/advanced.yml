@@ -538,9 +538,11 @@ Skills:
         Disarm:
             # ChanceMax: Maximum chance of disarming other players
             # MaxBonusLevel: Level when the maximum chance to disarm is reached
+            # UnEquipIfPossible: Will attempt to put the disarmed item into the disarmed players inventory instead of dropping it on the ground
             # AntiTheft: Determines if only the disarmed player can retrieve disarmed items
             ChanceMax: 33.0
             MaxBonusLevel: 1000
+            UnEquipIfPossible: false
             AntiTheft: false
 
         Deflect:
