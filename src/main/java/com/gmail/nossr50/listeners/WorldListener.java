@@ -1,7 +1,6 @@
 package com.gmail.nossr50.listeners;
 
 import com.gmail.nossr50.mcMMO;
-import com.gmail.nossr50.util.blockmeta.conversion.BlockStoreConversionMain;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
@@ -36,24 +35,6 @@ public class WorldListener implements Listener {
         for (BlockState blockState : event.getBlocks()) {
             mcMMO.getPlaceStore().setFalse(blockState);
         }
-    }
-
-    /**
-     * Monitor WorldInit events.
-     *
-     * @param event The event to watch
-     */
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onWorldInit(WorldInitEvent event) {
-        World world = event.getWorld();
-
-        if (!new File(world.getWorldFolder(), "mcmmo_data").exists() || plugin == null) {
-            return;
-        }
-
-        plugin.getLogger().info("Converting block storage for " + world.getName() + " to a new format.");
-
-        new BlockStoreConversionMain(world).run();
     }
 
     /**

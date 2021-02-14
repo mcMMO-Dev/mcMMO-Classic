@@ -35,8 +35,8 @@ import com.gmail.nossr50.skills.salvage.salvageables.SalvageableManager;
 import com.gmail.nossr50.skills.salvage.salvageables.SimpleSalvageableManager;
 import com.gmail.nossr50.skills.smelting.SmeltingManager;
 import com.gmail.nossr50.util.*;
-import com.gmail.nossr50.util.blockmeta.chunkmeta.ChunkManager;
-import com.gmail.nossr50.util.blockmeta.chunkmeta.ChunkManagerFactory;
+import com.gmail.nossr50.util.blockmeta.ChunkManager;
+import com.gmail.nossr50.util.blockmeta.ChunkManagerFactory;
 import com.gmail.nossr50.util.commands.CommandRegistrationManager;
 import com.gmail.nossr50.util.experience.FormulaManager;
 import com.gmail.nossr50.util.player.UserManager;
@@ -210,8 +210,7 @@ public class mcMMO extends JavaPlugin {
             ScoreboardManager.teardownAll();
             formulaManager.saveFormula();
             holidayManager.saveAnniversaryFiles();
-            placeStore.saveAll();       // Save our metadata
-            placeStore.cleanUp();       // Cleanup empty metadata stores
+            placeStore.closeAll();
         }
         catch (NullPointerException e) {}
 
