@@ -131,7 +131,7 @@ public final class ChimaeraWing {
         mcMMOPlayer.setTeleportCommenceLocation(null);
 
         if (Config.getInstance().getChimaeraSoundEnabled()) {
-            player.playSound(location, Sound.ENTITY_BAT_TAKEOFF, Misc.BAT_VOLUME, Misc.BAT_PITCH);
+            player.playSound(location, Sound.ENTITY_BAT_TAKEOFF, SoundUtil.BAT_VOLUME, SoundUtil.BAT_PITCH);
         }
 
         player.sendMessage(LocaleLoader.getString("Item.ChimaeraWing.Pass"));

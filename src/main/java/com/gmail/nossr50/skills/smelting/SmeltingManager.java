@@ -11,10 +11,7 @@ import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.skills.SkillManager;
 import com.gmail.nossr50.skills.mining.Mining;
 import com.gmail.nossr50.skills.smelting.Smelting.Tier;
-import com.gmail.nossr50.util.BlockUtils;
-import com.gmail.nossr50.util.EventUtils;
-import com.gmail.nossr50.util.Misc;
-import com.gmail.nossr50.util.Permissions;
+import com.gmail.nossr50.util.*;
 import com.gmail.nossr50.util.skills.ParticleEffectUtils;
 import com.gmail.nossr50.util.skills.SkillUtils;
 import org.bukkit.ChatColor;
@@ -88,7 +85,7 @@ public class SmeltingManager extends SkillManager {
             blockState.setType(Material.AIR);
 
             if (Config.getInstance().getFluxPickaxeSoundEnabled()) {
-                player.playSound(blockState.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, Misc.FIZZ_VOLUME, Misc.getFizzPitch());
+                player.playSound(blockState.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, SoundUtil.FIZZ_VOLUME, SoundUtil.getFizzPitch());
             }
 
             ParticleEffectUtils.playFluxEffect(blockState.getLocation());

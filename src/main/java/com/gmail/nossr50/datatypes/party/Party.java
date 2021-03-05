@@ -7,7 +7,7 @@ import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.mcMMO;
 import com.gmail.nossr50.party.PartyManager;
 import com.gmail.nossr50.util.EventUtils;
-import com.gmail.nossr50.util.Misc;
+import com.gmail.nossr50.util.SoundUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -226,7 +226,7 @@ public class Party {
                 leader.sendMessage(LocaleLoader.getString("Party.LevelUp", levelsGained, getLevel()));
 
                 if (Config.getInstance().getLevelUpSoundsEnabled()) {
-                    leader.playSound(leader.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, Misc.LEVELUP_VOLUME, Misc.LEVELUP_PITCH);
+                    leader.playSound(leader.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, SoundUtil.LEVELUP_VOLUME, SoundUtil.LEVELUP_PITCH);
                 }
             }
             return;
