@@ -115,13 +115,6 @@ public class mcMMO extends JavaPlugin {
 
 
     public static FixedMetadataValue metadataValue;
-
-    /* Plugin Incompatibility Warnings */
-    public static final String ULTRA_PERMISSONS = "UltraPermissons";
-    public static final String UP_WARNING_2 = "Stop using " + ULTRA_PERMISSONS + " with mcMMO immediately!";
-    public static final String UP_WARNING_1 = "mcMMO has detected " + ULTRA_PERMISSONS + " on your server, users have reported a severe plugin conflict between these two plugins which severely degrades server performance";
-    public static final String UP_WARNING_3 = "The author of UltraPermissions has passed away and its unlikely this issue will ever be solved";
-
     /**
      * Things to be run when the plugin is enabled.
      */
@@ -199,17 +192,6 @@ public class mcMMO extends JavaPlugin {
             getServer().getPluginManager().disablePlugin(this);
         }
 
-        if(Bukkit.getPluginManager().getPlugin(ULTRA_PERMISSONS) != null) {
-            Bukkit.getScheduler().runTaskTimer(this, () -> {
-                getLogger().severe(UP_WARNING_1);
-                getLogger().severe(UP_WARNING_2);
-                getLogger().severe(UP_WARNING_3);
-
-                Bukkit.broadcastMessage(UP_WARNING_1);
-                Bukkit.broadcastMessage(UP_WARNING_2);
-                Bukkit.broadcastMessage(UP_WARNING_3);
-            }, 0L, 1200L);
-        }
     }
 
     public static MaterialMapStore getMaterialMapStore() {
