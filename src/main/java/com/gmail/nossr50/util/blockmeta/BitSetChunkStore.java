@@ -1,5 +1,6 @@
 package com.gmail.nossr50.util.blockmeta;
 
+import com.gmail.nossr50.util.CompatManager;
 import com.gmail.nossr50.util.Misc;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -23,7 +24,7 @@ public class BitSetChunkStore implements ChunkStore {
     private transient boolean dirty = false;
 
     public BitSetChunkStore(World world, int cx, int cz) {
-        this(world.getUID(), Misc.getWorldMinCompat(world), world.getMaxHeight(), cx, cz);
+        this(world.getUID(), CompatManager.getWorldMinCompat(world), world.getMaxHeight(), cx, cz);
     }
 
     private BitSetChunkStore(UUID worldUid, int worldMin, int worldMax, int cx, int cz) {
@@ -115,7 +116,7 @@ public class BitSetChunkStore implements ChunkStore {
         if (world == null)
             return storedWorldMin;
 
-        return Misc.getWorldMinCompat(world);
+        return CompatManager.getWorldMinCompat(world);
     }
 
     private static int getWorldMax(UUID worldUid, int storedWorldMax)

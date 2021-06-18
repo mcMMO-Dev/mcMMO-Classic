@@ -136,7 +136,7 @@ public class MiningManager extends SkillManager {
                     Misc.dropItem(Misc.getBlockCenter(blockState), new ItemStack(blockState.getType())); // Initial block that would have been dropped
 
                     for (int i = 1; i < dropMultiplier; i++) {
-                        Mining.handleSilkTouchDrops(blockState); // Bonus drops - should drop the block & not the items
+                        Misc.dropItem(Misc.getBlockCenter(blockState), new ItemStack(blockState.getType())); // Bonus drops
                     }
                 }
             }

@@ -1,7 +1,9 @@
 package com.gmail.nossr50.util;
 
 import com.gmail.nossr50.config.Config;
+import com.gmail.nossr50.config.experience.ExperienceConfig;
 import com.gmail.nossr50.config.party.ItemWeightConfig;
+import com.gmail.nossr50.datatypes.skills.SkillType;
 import com.gmail.nossr50.locale.LocaleLoader;
 import com.gmail.nossr50.mcMMO;
 import org.bukkit.ChatColor;
@@ -244,7 +246,7 @@ public final class ItemUtils {
     }
 
     public static boolean isSmeltable(ItemStack item) {
-        return item != null && item.getType().isBlock() && MaterialUtils.isOre(item.getType());
+        return item != null && ExperienceConfig.getInstance().isSkillBlock(SkillType.SMELTING, item.getType());
     }
 
     public static boolean isSmelted(ItemStack item) {

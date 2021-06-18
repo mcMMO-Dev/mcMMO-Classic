@@ -144,8 +144,12 @@ Experience:
         Soul_Sand: 40
         Soul_Soil: 40
     Woodcutting:
-        Nether_Wart_Block: 20
-        Warped_Wart_Block: 20
+        Crimson_Hyphae: 50
+        Stripped_Crimson_Hyphae: 50
+        Warped_Hyphae: 50
+        Stripped_Warped_Hyphae: 50
+        Nether_Wart_Block: 1
+        Warped_Wart_Block: 1
         Shroomlight: 100
         Crimson_Stem: 35
         Warped_Stem: 35
@@ -179,8 +183,16 @@ Experience:
         Brown_Mushroom_Block: 70
         Mushroom_Stem: 80
     Herbalism:
-        Nether_Wart_Block: 20
-        Warped_Wart_Block: 20
+        Small_Dripleaf: 140
+        Big_Dripleaf: 140
+        Cave_Vines: 90
+        Cave_Vines_Plant: 90
+        Glow_Lichen: 200
+        Moss_Block: 150
+        Crimson_Roots: 6
+        Warped_Roots: 6
+        Nether_Wart_Block: 3
+        Warped_Wart_Block: 3
         Nether_Sprouts: 10
         Crimson_Fungus: 50
         Warped_Fungus: 50
@@ -262,6 +274,8 @@ Experience:
         Lily_of_the_valley: 150
         Wither_rose: 500
     Mining:
+        Copper_Ore: 400
+        Deepslate_Copper_Ore: 600
         Bone_Block: 500
         Crying_Obsidian: 3000
         Chain: 100
@@ -277,8 +291,10 @@ Experience:
         Fire_Coral_Block: 90
         Horn_Coral_Block: 125
         Coal_Ore: 100
+        Deepslate_Coal_Ore: 150
         Diamond_Ore: 750
-        Emerald_Ore: 1000
+        Emerald_Ore: 500
+        Deepslate_Emerald_Ore: 750
         End_Bricks: 200
         Chiseled_Nether_Bricks: 50
         Cracked_Nether_Bricks: 50
@@ -287,9 +303,13 @@ Experience:
         End_Stone: 150
         Glowstone: 30
         Gold_Ore: 350
+        Deepslate_Gold_Ore: 550
         Terracotta: 30
         Iron_Ore: 250
+        Deepslate_Iron_Ore: 350
         Lapis_Ore: 400
+        Lapis_Lazuli_Ore: 400
+        Deepslate_Lapis_Lazuli_Ore: 600
         Mossy_Cobblestone: 30
         Netherrack: 30
         Obsidian: 150
@@ -297,6 +317,7 @@ Experience:
         Blue_Ice: 100
         Nether_Quartz_Ore: 100
         Redstone_Ore: 150
+        Deepslate_Redstone_Ore: 225
         Sandstone: 30
         Black_Terracotta: 50
         Blue_Terracotta: 50
@@ -342,15 +363,29 @@ Experience:
         String: 1.8
         Other: 1.5
     Smelting:
+        Deepslate_Redstone_Ore: 30
+        Deepslate_Copper_Ore: 100
+        Deepslate_Coal_Ore: 20
+        Deepslate_Diamond_Ore: 140
+        Deepslate_Emerald_Ore: 110
+        Deepslate_Iron_Ore: 40
+        Deepslate_Gold_Ore: 50
+        Deepslate_Lapis_Lazuli_Ore: 60
+        Copper_Ore: 75
         Ancient_Debris: 200
         Coal_Ore: 10
         Diamond_Ore: 75
         Emerald_Ore: 100
+        Raw_Gold: 35
         Gold_Ore: 35
+        Raw_Iron: 25
         Iron_Ore: 25
+        Lapis_Lazuli_Ore: 40
         Lapis_Ore: 40
         Nether_Quartz_Ore: 25
         Redstone_Ore: 15
+        Nether_Gold_Ore: 35
+        Cobbled_Deepslate: 5
     Taming:
         Animal_Taming:
             Llama: 1200
@@ -366,6 +401,8 @@ Experience:
             Fox: 1000
             Panda: 1000
             Bee: 50
+            Goat: 250
+            Axolotl: 600
     Combat:
         Multiplier:
             Animals: 1.0
@@ -435,3 +472,6 @@ Experience:
             Zombified_Piglin: 3.0
             Strider: 1.2
             Zoglin: 2.5
+            Goat: 1.5
+            Axolotl: 1.75
+            Glow_Squid: 1.5

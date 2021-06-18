@@ -1,6 +1,7 @@
 package com.gmail.nossr50.util.blockmeta;
 
 import com.gmail.nossr50.TestUtil;
+import com.gmail.nossr50.util.CompatManager;
 import com.gmail.nossr50.util.Misc;
 import com.google.common.io.Files;
 import org.bukkit.Bukkit;
@@ -79,7 +80,7 @@ public class ChunkStoreTest {
     @Test
     public void testNegativeWorldMin() throws IOException {
         PowerMockito.mockStatic(Misc.class);
-        Mockito.when(Misc.getWorldMinCompat(mockWorld)).thenReturn(-64);
+        Mockito.when(CompatManager.getWorldMinCompat(mockWorld)).thenReturn(-64);
 
         BitSetChunkStore original = new BitSetChunkStore(mockWorld, 1, 2);
         original.setTrue(14, -32, 12);
@@ -99,7 +100,7 @@ public class ChunkStoreTest {
         byte[] serializedBytes = serializeChunkstore(original);
 
         PowerMockito.mockStatic(Misc.class);
-        Mockito.when(Misc.getWorldMinCompat(mockWorld)).thenReturn(-64);
+        Mockito.when(CompatManager.getWorldMinCompat(mockWorld)).thenReturn(-64);
         ChunkStore deserialized = BitSetChunkStore.Serialization.readChunkStore(new DataInputStream(new ByteArrayInputStream(serializedBytes)));
         assertEqualIgnoreMinMax(original, deserialized);
     }

@@ -151,8 +151,4 @@ public final class Misc {
     public static Random getRandom() {
         return random;
     }
-
-    public static int getWorldMinCompat(World world) {
-        return 0; // TODO update with 1.17
-    }
 }

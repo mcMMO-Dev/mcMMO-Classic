@@ -349,6 +349,17 @@ public class MaterialMapStore {
         ores.add("redstone_ore");
         ores.add("emerald_ore");
         ores.add("ancient_debris");
+        ores.add("gilded_blackstone");
+
+        ores.add("deepslate_redstone_ore");
+        ores.add("deepslate_copper_ore");
+        ores.add("deepslate_coal_ore");
+        ores.add("deepslate_diamond_ore");
+        ores.add("deepslate_emerald_ore");
+        ores.add("deepslate_iron_ore");
+        ores.add("deepslate_gold_ore");
+        ores.add("deepslate_lapis_ore");
+        ores.add("copper_ore");
     }
 
     private void fillArmors() {
